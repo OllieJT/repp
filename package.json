@@ -1,0 +1,22 @@
+{
+  "name": "branch-work",
+  "version": "0.0.0",
+  "description": "File-based project and task management that lives in git.",
+  "engines": {
+    "node": ">=24"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OllieJT/branch-work.git"
+  },
+  "license": "ISC",
+  "scripts": {
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/cli": "^2.29.8"
+  }
+}
