@@ -8,7 +8,7 @@ bws::get_project() {
     local id="$1"
 
     if [[ -z "$id" ]]; then
-        echo "Error: project-id required" >&2
+        bws::log::error "project-id required"
         return $BWS_EXIT_ERROR
     fi
 
@@ -18,7 +18,7 @@ bws::get_project() {
     local file="$root/$id/PROJECT.yml"
 
     if [[ ! -f "$file" ]]; then
-        echo "Note: project '$id' not found" >&2
+        bws::log::info "project '$id' not found"
         return $BWS_EXIT_ERROR
     fi
 
@@ -69,7 +69,7 @@ bws::list_projects() {
         ((found++)) || true
     done
 
-    [[ $found -eq 0 ]] && echo "Note: no projects found" >&2
+    [[ $found -eq 0 ]] && bws::log::info "no projects found"
     return $BWS_EXIT_SUCCESS
 }
 
@@ -77,12 +77,12 @@ bws::get_task() {
     local id="$1"
 
     if [[ -z "$id" ]]; then
-        echo "Error: task-id required" >&2
+        bws::log::error "task-id required"
         return $BWS_EXIT_ERROR
     fi
 
     if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        echo "Error: task-id must be 'project-slug/task-slug'" >&2
+        bws::log::error "task-id must be 'project-slug/task-slug'"
         return $BWS_EXIT_ERROR
     fi
 
@@ -94,7 +94,7 @@ bws::get_task() {
     local file="$root/$project_id/$task_slug/TASK.yml"
 
     if [[ ! -f "$file" ]]; then
-        echo "Note: task '$id' not found" >&2
+        bws::log::info "task '$id' not found"
         return $BWS_EXIT_ERROR
     fi
 
@@ -110,7 +110,7 @@ bws::list_tasks() {
     local filter_priority=""
 
     if [[ -z "$project_id" ]]; then
-        echo "Error: project-id required" >&2
+        bws::log::error "project-id required"
         return $BWS_EXIT_ERROR
     fi
 
@@ -134,7 +134,7 @@ bws::list_tasks() {
     local project_dir="$root/$project_id"
 
     if [[ ! -d "$project_dir" ]]; then
-        echo "Note: project '$project_id' not found" >&2
+        bws::log::info "project '$project_id' not found"
         return $BWS_EXIT_ERROR
     fi
 
@@ -160,7 +160,7 @@ bws::list_tasks() {
         ((found++)) || true
     done
 
-    [[ $found -eq 0 ]] && echo "Note: no tasks found in '$project_id'" >&2
+    [[ $found -eq 0 ]] && bws::log::info "no tasks found in '$project_id'"
     return $BWS_EXIT_SUCCESS
 }
 
@@ -204,7 +204,7 @@ bws::scan_projects() {
         ((found++)) || true
     done
 
-    [[ $found -eq 0 ]] && echo "Note: no projects found" >&2
+    [[ $found -eq 0 ]] && bws::log::info "no projects found"
     return $BWS_EXIT_SUCCESS
 }
 
@@ -215,7 +215,7 @@ bws::scan_tasks() {
     local filter_priority=""
 
     if [[ -z "$project_id" ]]; then
-        echo "Error: project-id required" >&2
+        bws::log::error "project-id required"
         return $BWS_EXIT_ERROR
     fi
 
@@ -239,7 +239,7 @@ bws::scan_tasks() {
     local project_dir="$root/$project_id"
 
     if [[ ! -d "$project_dir" ]]; then
-        echo "Note: project '$project_id' not found" >&2
+        bws::log::info "project '$project_id' not found"
         return $BWS_EXIT_ERROR
     fi
 
@@ -263,7 +263,7 @@ bws::scan_tasks() {
         ((found++)) || true
     done
 
-    [[ $found -eq 0 ]] && echo "Note: no tasks found in '$project_id'" >&2
+    [[ $found -eq 0 ]] && bws::log::info "no tasks found in '$project_id'"
     return $BWS_EXIT_SUCCESS
 }
 
@@ -271,12 +271,12 @@ bws::get_task_spec() {
     local id="$1"
 
     if [[ -z "$id" ]]; then
-        echo "Error: task-id required" >&2
+        bws::log::error "task-id required"
         return $BWS_EXIT_ERROR
     fi
 
     if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        echo "Error: task-id must be 'project-slug/task-slug'" >&2
+        bws::log::error "task-id must be 'project-slug/task-slug'"
         return $BWS_EXIT_ERROR
     fi
 
@@ -288,7 +288,7 @@ bws::get_task_spec() {
     local file="$root/$project_id/$task_slug/SPEC.md"
 
     if [[ ! -f "$file" ]]; then
-        echo "Note: spec for '$id' not found" >&2
+        bws::log::info "could not find spec for task '$id'"
         return $BWS_EXIT_ERROR
     fi
 
@@ -303,12 +303,12 @@ bws::is_task_blocked() {
     local id="$1"
 
     if [[ -z "$id" ]]; then
-        echo "Error: task-id required" >&2
+        bws::log::error "task-id required"
         return $BWS_EXIT_ERROR
     fi
 
     if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        echo "Error: task-id must be 'project-slug/task-slug'" >&2
+        bws::log::error "task-id must be 'project-slug/task-slug'"
         return $BWS_EXIT_ERROR
     fi
 
@@ -320,7 +320,7 @@ bws::is_task_blocked() {
     local file="$root/$project_id/$task_slug/TASK.yml"
 
     if [[ ! -f "$file" ]]; then
-        echo "Error: task '$id' not found" >&2
+        bws::log::error "task '$id' not found"
         return $BWS_EXIT_ERROR
     fi
 
@@ -336,7 +336,7 @@ bws::is_task_blocked() {
         local blocker_file="$root/$blocker_project/$blocker_task/TASK.yml"
 
         if [[ ! -f "$blocker_file" ]]; then
-            echo "Warning: blocker '$blocker_id' not found" >&2
+            bws::log::warn "blocker '$blocker_id' not found"
             # Missing blocker treated as blocked (conservative)
             return $BWS_EXIT_SUCCESS
         fi

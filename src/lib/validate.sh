@@ -6,12 +6,12 @@ bws::validate_status() {
     local valid="backlog discovery in_progress review done"
 
     if [[ -z "$status" ]]; then
-        echo "Error: status required" >&2
+        bws::log::error "status required"
         return $BWS_EXIT_ERROR
     fi
 
     if [[ ! " $valid " =~ " $status " ]]; then
-        echo "Error: invalid status '$status'. Valid: $valid" >&2
+        bws::log::error "invalid status '$status'. Valid: $valid"
         return $BWS_EXIT_ERROR
     fi
 
@@ -22,12 +22,12 @@ bws::validate_priority() {
     local priority="$1"
 
     if [[ -z "$priority" ]]; then
-        echo "Error: priority required" >&2
+        bws::log::error "priority required"
         return $BWS_EXIT_ERROR
     fi
 
     if ! [[ "$priority" =~ ^[0-4]$ ]]; then
-        echo "Error: invalid priority '$priority'. Valid: 0-4" >&2
+        bws::log::error "invalid priority '$priority'. Valid: 0-4"
         return $BWS_EXIT_ERROR
     fi
 

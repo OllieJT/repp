@@ -8,7 +8,7 @@ bws::ui::select_project() {
     items=$(bws::scan_projects "$@") || return $BWS_EXIT_ERROR
 
     if [[ -z "$items" ]]; then
-        echo "Error: no projects found" >&2
+        bws::log::error "no projects found"
         return $BWS_EXIT_ERROR
     fi
 
@@ -27,7 +27,7 @@ bws::ui::select_task() {
     items=$(bws::scan_tasks "$project_id" "$@") || return $BWS_EXIT_ERROR
 
     if [[ -z "$items" ]]; then
-        echo "Error: no tasks found" >&2
+        bws::log::error "no tasks found"
         return $BWS_EXIT_ERROR
     fi
 

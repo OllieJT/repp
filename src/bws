@@ -20,6 +20,7 @@ bws::check_deps() {
 
 # Source libraries
 source "$SCRIPT_DIR/lib/exitcodes.sh"
+source "$SCRIPT_DIR/lib/log.sh"
 source "$SCRIPT_DIR/lib/config.sh"
 source "$SCRIPT_DIR/lib/query.sh"
 source "$SCRIPT_DIR/lib/validate.sh"

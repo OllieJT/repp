@@ -62,8 +62,8 @@ bws::cmd::task::is_blocked() {
     local task_id="$1"
 
     if [[ -z "$task_id" ]]; then
-        echo "Error: task-id required" >&2
-        echo "Usage: bws task is-blocked <task-id>" >&2
+        bws::log::error "task-id required"
+        bws::log::info "Usage: bws task is-blocked <task-id>"
         return $BWS_EXIT_ERROR
     fi
 
