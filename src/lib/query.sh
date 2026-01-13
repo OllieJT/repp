@@ -66,7 +66,7 @@ bws::list_projects() {
         [[ $found -gt 0 ]] && echo "---"
         echo "id: $id"
         cat "$f"
-        ((found++))
+        ((found++)) || true
     done
 
     [[ $found -eq 0 ]] && echo "Note: no projects found" >&2
@@ -157,7 +157,7 @@ bws::list_tasks() {
         [[ $found -gt 0 ]] && echo "---"
         echo "id: $id"
         cat "$f"
-        ((found++))
+        ((found++)) || true
     done
 
     [[ $found -eq 0 ]] && echo "Note: no tasks found in '$project_id'" >&2
