@@ -292,7 +292,11 @@ bws::get_task_spec() {
         return $BWS_EXIT_ERROR
     fi
 
-    cat "$file"
+    if command -v gum &>/dev/null; then
+        gum format < "$file"
+    else
+        cat "$file"
+    fi
     return $BWS_EXIT_SUCCESS
 }
 
