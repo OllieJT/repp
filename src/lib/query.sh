@@ -22,8 +22,12 @@ bws::get_project() {
         return $BWS_EXIT_ERROR
     fi
 
-    echo "id: $id"
-    cat "$file"
+    if command -v gum &>/dev/null; then
+        { echo "id: $id"; cat "$file"; } | gum format -t code
+    else
+        echo "id: $id"
+        cat "$file"
+    fi
     return $BWS_EXIT_SUCCESS
 }
 
@@ -98,8 +102,12 @@ bws::get_task() {
         return $BWS_EXIT_ERROR
     fi
 
-    echo "id: $id"
-    cat "$file"
+    if command -v gum &>/dev/null; then
+        { echo "id: $id"; cat "$file"; } | gum format -t code
+    else
+        echo "id: $id"
+        cat "$file"
+    fi
     return $BWS_EXIT_SUCCESS
 }
 
