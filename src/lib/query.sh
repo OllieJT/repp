@@ -164,6 +164,109 @@ bws::list_tasks() {
     return $BWS_EXIT_SUCCESS
 }
 
+bws::scan_projects() {
+    local filter_status=""
+    local filter_priority=""
+
+    for arg in "$@"; do
+        case "$arg" in
+            --status=*) filter_status="${arg#*=}" ;;
+            --min-priority=*) filter_priority="${arg#*=}" ;;
+        esac
+    done
+
+    if [[ -n "$filter_status" ]]; then
+        bws::validate_status "$filter_status" || return $BWS_EXIT_ERROR
+    fi
+    if [[ -n "$filter_priority" ]]; then
+        bws::validate_priority "$filter_priority" || return $BWS_EXIT_ERROR
+    fi
+
+    local root
+    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+
+    local found=0
+
+    for f in "$root"/*/PROJECT.yml; do
+        [[ -f "$f" ]] || continue
+
+        local id
+        id=$(basename "$(dirname "$f")")
+        local status
+        status=$(yq '.status' "$f")
+        local priority
+        priority=$(yq '.priority' "$f")
+
+        [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
+        [[ -n "$filter_priority" && "$priority" -gt "$filter_priority" ]] && continue
+
+        echo "$id"
+        ((found++)) || true
+    done
+
+    [[ $found -eq 0 ]] && echo "Note: no projects found" >&2
+    return $BWS_EXIT_SUCCESS
+}
+
+bws::scan_tasks() {
+    local project_id="$1"
+    shift || true
+    local filter_status=""
+    local filter_priority=""
+
+    if [[ -z "$project_id" ]]; then
+        echo "Error: project-id required" >&2
+        return $BWS_EXIT_ERROR
+    fi
+
+    for arg in "$@"; do
+        case "$arg" in
+            --status=*) filter_status="${arg#*=}" ;;
+            --min-priority=*) filter_priority="${arg#*=}" ;;
+        esac
+    done
+
+    if [[ -n "$filter_status" ]]; then
+        bws::validate_status "$filter_status" || return $BWS_EXIT_ERROR
+    fi
+    if [[ -n "$filter_priority" ]]; then
+        bws::validate_priority "$filter_priority" || return $BWS_EXIT_ERROR
+    fi
+
+    local root
+    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+
+    local project_dir="$root/$project_id"
+
+    if [[ ! -d "$project_dir" ]]; then
+        echo "Note: project '$project_id' not found" >&2
+        return $BWS_EXIT_ERROR
+    fi
+
+    local found=0
+
+    for f in "$project_dir"/*/TASK.yml; do
+        [[ -f "$f" ]] || continue
+
+        local task_slug
+        task_slug=$(basename "$(dirname "$f")")
+        local id="$project_id/$task_slug"
+        local status
+        status=$(yq '.status' "$f")
+        local priority
+        priority=$(yq '.priority' "$f")
+
+        [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
+        [[ -n "$filter_priority" && "$priority" -gt "$filter_priority" ]] && continue
+
+        echo "$id"
+        ((found++)) || true
+    done
+
+    [[ $found -eq 0 ]] && echo "Note: no tasks found in '$project_id'" >&2
+    return $BWS_EXIT_SUCCESS
+}
+
 bws::get_task_spec() {
     local id="$1"
 

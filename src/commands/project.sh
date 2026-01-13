@@ -24,3 +24,8 @@ bws::cmd::project::get() {
     bws::get_project "$project_id"
     return $?
 }
+
+bws::cmd::project::scan() {
+    bws::scan_projects "$@"
+    return $?
+}

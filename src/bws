@@ -28,8 +28,6 @@ source "$SCRIPT_DIR/lib/ui.sh"
 # Source command handlers
 source "$SCRIPT_DIR/commands/project.sh"
 source "$SCRIPT_DIR/commands/task.sh"
-source "$SCRIPT_DIR/commands/task-spec.sh"
-source "$SCRIPT_DIR/commands/is-blocked.sh"
 
 bws::check_deps || exit $BWS_EXIT_ERROR
 
@@ -41,6 +39,7 @@ Usage: bws project <action> [args] [flags]
 Actions:
   list    List all projects
   get     Get project details
+  scan    List project IDs only
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
@@ -49,6 +48,7 @@ Flags:
 Examples:
   bws project list --status=in_progress
   bws project get my-project
+  bws project scan
 EOF
 }
 
@@ -57,8 +57,11 @@ bws::help::task() {
 Usage: bws task <action> [args] [flags]
 
 Actions:
-  list    List tasks in a project
-  get     Get task details
+  list        List tasks in a project
+  get         Get task details
+  get-spec    Get task specification (SPEC.md)
+  is-blocked  Check if task is blocked
+  scan        List task IDs only
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
@@ -67,35 +70,12 @@ Flags:
 Examples:
   bws task list my-project --status=backlog
   bws task get my-project/my-task
+  bws task get-spec my-project/my-task
+  bws task is-blocked my-project/my-task
+  bws task scan my-project
 EOF
 }
 
-bws::help::task_spec() {
-    cat <<EOF
-Usage: bws task-spec <action> [args]
-
-Actions:
-  get     Get task specification (SPEC.md)
-
-Examples:
-  bws task-spec get my-project/my-task
-EOF
-}
-
-bws::help::is_blocked() {
-    cat <<EOF
-Usage: bws is-blocked <task-id>
-
-Check if a task is blocked by incomplete dependencies.
-
-Exit codes:
-  0 - Task is blocked
-  1 - Task is not blocked
-
-Examples:
-  bws is-blocked my-project/my-task
-EOF
-}
 
 # Action-level help functions
 bws::help::project::list() {
@@ -125,6 +105,22 @@ an interactive selector will be shown.
 Examples:
   bws project get my-project
   bws project get
+EOF
+}
+
+bws::help::project::scan() {
+    cat <<EOF
+Usage: bws project scan [flags]
+
+List project IDs only (no file contents).
+
+Flags:
+  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
+  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+
+Examples:
+  bws project scan
+  bws project scan --status=in_progress
 EOF
 }
 
@@ -161,9 +157,9 @@ Examples:
 EOF
 }
 
-bws::help::task_spec::get() {
+bws::help::task::get_spec() {
     cat <<EOF
-Usage: bws task-spec get [task-id]
+Usage: bws task get-spec [task-id]
 
 Get the specification (SPEC.md) for a task. If no task-id is provided,
 an interactive selector will be shown.
@@ -171,8 +167,39 @@ an interactive selector will be shown.
 Task ID format: project-id/task-slug
 
 Examples:
-  bws task-spec get my-project/my-task
-  bws task-spec get
+  bws task get-spec my-project/my-task
+  bws task get-spec
+EOF
+}
+
+bws::help::task::is_blocked() {
+    cat <<EOF
+Usage: bws task is-blocked <task-id>
+
+Check if a task is blocked by incomplete dependencies.
+
+Exit codes:
+  0 - Task is blocked
+  1 - Task is not blocked
+
+Examples:
+  bws task is-blocked my-project/my-task
+EOF
+}
+
+bws::help::task::scan() {
+    cat <<EOF
+Usage: bws task scan [project-id] [flags]
+
+List task IDs only (no file contents).
+
+Flags:
+  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
+  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+
+Examples:
+  bws task scan my-project
+  bws task scan my-project --status=backlog
 EOF
 }
 
@@ -203,6 +230,10 @@ bws::main() {
                     if bws::has_help_flag "$@"; then bws::help::project::get; return $BWS_EXIT_SUCCESS
                     else bws::cmd::project::get "$@"; return $?; fi
                     ;;
+                scan)
+                    if bws::has_help_flag "$@"; then bws::help::project::scan; return $BWS_EXIT_SUCCESS
+                    else bws::cmd::project::scan "$@"; return $?; fi
+                    ;;
                 *)
                     echo "Unknown action: $action" >&2
                     bws::help::project
@@ -221,39 +252,24 @@ bws::main() {
                     if bws::has_help_flag "$@"; then bws::help::task::get; return $BWS_EXIT_SUCCESS
                     else bws::cmd::task::get "$@"; return $?; fi
                     ;;
+                get-spec)
+                    if bws::has_help_flag "$@"; then bws::help::task::get_spec; return $BWS_EXIT_SUCCESS
+                    else bws::cmd::task::get_spec "$@"; return $?; fi
+                    ;;
+                is-blocked)
+                    if bws::has_help_flag "$@"; then bws::help::task::is_blocked; return $BWS_EXIT_SUCCESS
+                    else bws::cmd::task::is_blocked "$@"; return $?; fi
+                    ;;
+                scan)
+                    if bws::has_help_flag "$@"; then bws::help::task::scan; return $BWS_EXIT_SUCCESS
+                    else bws::cmd::task::scan "$@"; return $?; fi
+                    ;;
                 *)
                     echo "Unknown action: $action" >&2
                     bws::help::task
                     return $BWS_EXIT_ERROR
                     ;;
             esac
-            ;;
-        task-spec)
-            case "$action" in
-                --help|-h|"") bws::help::task_spec; return $BWS_EXIT_SUCCESS ;;
-                get)
-                    if bws::has_help_flag "$@"; then bws::help::task_spec::get; return $BWS_EXIT_SUCCESS
-                    else bws::cmd::task_spec::get "$@"; return $?; fi
-                    ;;
-                *)
-                    echo "Unknown action: $action" >&2
-                    bws::help::task_spec
-                    return $BWS_EXIT_ERROR
-                    ;;
-            esac
-            ;;
-        is-blocked)
-            # is-blocked has no actions - $action is the task-id
-            if [[ "$action" == "--help" || "$action" == "-h" ]]; then
-                bws::help::is_blocked
-                return $BWS_EXIT_SUCCESS
-            elif bws::has_help_flag "$@"; then
-                bws::help::is_blocked
-                return $BWS_EXIT_SUCCESS
-            else
-                bws::cmd::is_blocked "$action" "$@"
-                return $?
-            fi
             ;;
         --help|-h|"")
             bws::usage
@@ -269,27 +285,22 @@ bws::main() {
 
 bws::usage() {
     cat <<EOF
-Usage: bws <resource> <action> [args] [flags]
+Usage: bws <resource> <action> [args]
 
 Resources:
-  project         Manage projects
-    list          List projects [--status=X] [--min-priority=X]
-    get           Get project details [project-id]
+  project
+    list          List projects
+    get           Get project details
+    scan          List project IDs only
 
-  task            Manage tasks
-    list          List tasks [project-id] [--status=X] [--min-priority=X]
-    get           Get task details [task-id]
+  task
+    list          List tasks in a project
+    get           Get task details
+    get-spec      Get task specification
+    is-blocked    Check if task is blocked
+    scan          List task IDs only
 
-  task-spec       View task specifications
-    get           Get task spec [task-id]
-
-  is-blocked      Check if task is blocked <task-id>
-
-Flags:
-  --status=X         backlog | discovery | in_progress | review | done
-  --min-priority=X   0 (critical) to 4 (backlog)
-
-Run 'bws <resource> --help' for resource-specific help.
+Run 'bws <resource> --help' for details.
 EOF
 }
 
