@@ -21,7 +21,7 @@ bws::list_tasks() {
     :
 }
 
-bws::get_task_spec() {
+bws::get_task-spec() {
     # TODO: implement
     :
 }
