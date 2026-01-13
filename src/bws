@@ -15,6 +15,7 @@ source "$SCRIPT_DIR/lib/ui.sh"
 source "$SCRIPT_DIR/commands/project.sh"
 source "$SCRIPT_DIR/commands/task.sh"
 source "$SCRIPT_DIR/commands/task-spec.sh"
+source "$SCRIPT_DIR/commands/is-blocked.sh"
 
 bws::main() {
     local resource="${1:-}"
@@ -39,9 +40,12 @@ bws::main() {
             ;;
         task-spec)
             case "$action" in
-                get) bws::cmd::task-spec::get "$@" ;;
+                get) bws::cmd::task_spec::get "$@" ;;
                 *)   bws::usage ;;
             esac
+            ;;
+        is-blocked)
+            bws::cmd::is_blocked "$@"
             ;;
         --help|-h|"")
             bws::usage
