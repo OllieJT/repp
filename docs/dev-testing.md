@@ -97,8 +97,8 @@ brew install yq gum
 Source a library file and call functions directly:
 
 ```bash
-source ./src/lib/core.sh
-bws::core::list_projects
+source ./src/lib/query.sh
+bws::list_projects
 ```
 
 ## Common Issues

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Core project/task query functions
+# Project/task query functions
 
 bws::get_project() {
     # TODO: implement
@@ -27,16 +27,6 @@ bws::get_task-spec() {
 }
 
 bws::is_task_blocked() {
-    # TODO: implement
-    :
-}
-
-bws::validate_status() {
-    # TODO: implement
-    :
-}
-
-bws::validate_priority() {
     # TODO: implement
     :
 }
