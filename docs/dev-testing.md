@@ -98,7 +98,7 @@ Source a library file and call functions directly:
 
 ```bash
 source ./src/lib/query.sh
-bws::query::list_projects
+bws::list_projects
 ```
 
 ## Common Issues
