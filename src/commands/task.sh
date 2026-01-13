@@ -11,8 +11,8 @@ bws::cmd::task::get() {
     :
 }
 
-bws::cmd::task::check() {
-    # TODO: check if task is blocked
-    # Exit 0=blocked, 1=not blocked
+bws::cmd::task::ready() {
+    # TODO: check if task is ready to work on
+    # Exit 0=ready, 1=blocked
     :
 }

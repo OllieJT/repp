@@ -31,7 +31,7 @@ bws::main() {
             case "$action" in
                 list)  bws::cmd::task::list "$@" ;;
                 get)   bws::cmd::task::get "$@" ;;
-                check) bws::cmd::task::check "$@" ;;
+                ready) bws::cmd::task::ready "$@" ;;
                 *)     bws::usage ;;
             esac
             ;;
