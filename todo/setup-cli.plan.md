@@ -1,6 +1,6 @@
 # Implementation Plan: bws CLI
 
-spec: @todo/setup-cli.md
+spec: todo/setup-cli.md
 
 ## Steps
 
@@ -22,12 +22,14 @@ Adapt from `reference/scripts/bws.sh`:
 - `bws::list_tasks`
 - `bws::get_task_spec`
 - `bws::is_task_blocked`
-- `bws::validate_status`
-- `bws::validate_priority`
 
 Changes from reference:
 - Use `bws::get_root` instead of hardcoded `BWS_ROOT`
 - Keep same function signatures
+
+### 3.1. Implement `src/lib/validate.sh`
+- `bws::validate_status`
+- `bws::validate_priority`
 
 ### 4. Implement `src/lib/ui.sh`
 - `bws::ui::select_project` - `gum filter` over project list, returns ID

@@ -30,13 +30,3 @@ bws::is_task_blocked() {
     # TODO: implement
     :
 }
-
-bws::validate_status() {
-    # TODO: implement
-    :
-}
-
-bws::validate_priority() {
-    # TODO: implement
-    :
-}

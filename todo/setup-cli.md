@@ -60,6 +60,7 @@ src/
 ├── lib/
 │   ├── core.sh          # Project/task query functions
 │   ├── config.sh        # Config file loading
+│   ├── validate.sh      # Status and priority validation
 │   └── ui.sh            # GUM-based interactive selection
 └── commands/
     ├── project.sh       # project list, project get
