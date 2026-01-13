@@ -5,6 +5,19 @@ set -euo pipefail
 export _BWS_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_DIR="$_BWS_SCRIPT_DIR"
 
+bws::check_deps() {
+    local missing=()
+    command -v yq &>/dev/null || missing+=("yq")
+    command -v gum &>/dev/null || missing+=("gum (optional, for interactive selection)")
+
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        echo "Missing dependencies:" >&2
+        printf '  - %s\n' "${missing[@]}" >&2
+        [[ " ${missing[*]} " == *" yq "* ]] && return 1
+    fi
+    return 0
+}
+
 # Source libraries
 source "$SCRIPT_DIR/lib/config.sh"
 source "$SCRIPT_DIR/lib/query.sh"
@@ -16,6 +29,8 @@ source "$SCRIPT_DIR/commands/project.sh"
 source "$SCRIPT_DIR/commands/task.sh"
 source "$SCRIPT_DIR/commands/task-spec.sh"
 source "$SCRIPT_DIR/commands/is-blocked.sh"
+
+bws::check_deps || exit 1
 
 # Resource-level help functions
 bws::help::project() {

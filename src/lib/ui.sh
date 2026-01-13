@@ -10,7 +10,7 @@ bws::ui::select_project() {
     [[ -z "$projects" ]] && return 1
 
     local items
-    items=$(echo "$projects" | yq eval-all -r 'select(.) | [.id, .description] | join(" — ")')
+    items=$(echo "$projects" | yq eval-all -r 'select(.) | .id + (if .description then " — " + .description else "" end)')
 
     local selection
     selection=$(echo "$items" | gum filter --placeholder "Select project...")
@@ -34,7 +34,7 @@ bws::ui::select_task() {
     [[ -z "$tasks" ]] && return 1
 
     local items
-    items=$(echo "$tasks" | yq eval-all -r 'select(.) | [.id, .description] | join(" — ")')
+    items=$(echo "$tasks" | yq eval-all -r 'select(.) | .id + (if .description then " — " + .description else "" end)')
 
     local selection
     selection=$(echo "$items" | gum filter --placeholder "Select task...")
@@ -45,6 +45,14 @@ bws::ui::select_task() {
 }
 
 bws::ui::display_yaml() {
-    # TODO: styled YAML output
-    :
+    local input
+    input=$(cat)
+
+    [[ -z "$input" ]] && return 0
+
+    if command -v gum &>/dev/null; then
+        echo "$input" | gum format -t code
+    else
+        echo "$input"
+    fi
 }

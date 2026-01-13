@@ -31,14 +31,8 @@ bws::load_config() {
         fi
     done
 
-    local git_root
-    git_root="$(git rev-parse --show-toplevel 2>/dev/null)"
-    local default_config="${git_root:+$git_root/.bwsrc}"
-    default_config="${default_config:-$HOME/.config/bws/config}"
-    mkdir -p "$(dirname "$default_config")"
-    echo 'BWS_ROOT="projects"' > "$default_config"
-    source "$default_config"
-    _BWS_CONFIG_FILE="$default_config"
+    echo "Error: no config file found. Create .bwsrc with BWS_ROOT=\"path/to/projects\"" >&2
+    return 1
 }
 
 bws::get_root() {

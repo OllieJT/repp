@@ -224,16 +224,16 @@ bws::is_task_blocked() {
         local blocker_file="$root/$blocker_project/$blocker_task/TASK.yml"
 
         if [[ ! -f "$blocker_file" ]]; then
-            return 0
+            return 1
         fi
 
         local blocker_status
         blocker_status=$(yq '.status' "$blocker_file")
 
         if [[ "$blocker_status" != "done" ]]; then
-            return 0
+            return 1
         fi
     done <<< "$blockers"
 
-    return 1
+    return 0
 }

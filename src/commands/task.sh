@@ -38,7 +38,19 @@ bws::cmd::task::get() {
 }
 
 bws::cmd::task::ready() {
-    # TODO: check if task is ready to work on
-    # Exit 0=ready, 1=blocked
-    :
+    local task_id=""
+    local filters=()
+
+    for arg in "$@"; do
+        case "$arg" in
+            --*) filters+=("$arg") ;;
+            *) task_id="$arg" ;;
+        esac
+    done
+
+    if [[ -z "$task_id" ]]; then
+        task_id=$(bws::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return 1
+    fi
+
+    bws::is_task_blocked "$task_id"
 }
