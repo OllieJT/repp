@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Resolve script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source libraries
+source "$SCRIPT_DIR/lib/config.sh"
+source "$SCRIPT_DIR/lib/core.sh"
+source "$SCRIPT_DIR/lib/ui.sh"
+
+# Source command handlers
+source "$SCRIPT_DIR/commands/project.sh"
+source "$SCRIPT_DIR/commands/task.sh"
+source "$SCRIPT_DIR/commands/task-spec.sh"
+source "$SCRIPT_DIR/commands/is-blocked.sh"
+
+bws::main() {
+    local resource="${1:-}"
+    local action="${2:-}"
+    shift 2 2>/dev/null || true
+
+    case "$resource" in
+        project)
+            case "$action" in
+                list) bws::cmd::project::list "$@" ;;
+                get)  bws::cmd::project::get "$@" ;;
+                *)    bws::usage ;;
+            esac
+            ;;
+        task)
+            case "$action" in
+                list) bws::cmd::task::list "$@" ;;
+                get)  bws::cmd::task::get "$@" ;;
+                *)    bws::usage ;;
+            esac
+            ;;
+        task-spec)
+            case "$action" in
+                get) bws::cmd::task_spec::get "$@" ;;
+                *)   bws::usage ;;
+            esac
+            ;;
+        is-blocked)
+            bws::cmd::is_blocked "$action" "$@"
+            ;;
+        --help|-h|"")
+            bws::usage
+            ;;
+        *)
+            bws::usage
+            ;;
+    esac
+}
+
+bws::usage() {
+    cat <<EOF
+Usage: bws <resource> <action> [args] [flags]
+
+Resources:
+  project     Manage projects
+  task        Manage tasks
+  task-spec   View task specifications
+  is-blocked  Check if task is blocked
+
+Run 'bws <resource> --help' for resource-specific help.
+EOF
+    exit 1
+}
+
+bws::main "$@"
