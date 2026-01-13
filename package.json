@@ -5,6 +5,20 @@
   "engines": {
     "node": ">=24"
   },
+  "bin": {
+    "bws": "./src/bws"
+  },
+  "files": [
+    "src/"
+  ],
+  "keywords": [
+    "cli",
+    "task-management",
+    "project-management",
+    "ralph",
+    "context management",
+    "productivity"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/OllieJT/branch-work.git"
