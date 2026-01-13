@@ -2,13 +2,39 @@
 # Task command handlers
 
 bws::cmd::task::list() {
-    # TODO: list tasks, interactive project select if no arg
-    :
+    local project_id=""
+    local filters=()
+
+    for arg in "$@"; do
+        case "$arg" in
+            --*) filters+=("$arg") ;;
+            *) project_id="$arg" ;;
+        esac
+    done
+
+    if [[ -z "$project_id" ]]; then
+        project_id=$(bws::ui::select_project "${filters[@]}") || return 1
+    fi
+
+    bws::list_tasks "$project_id" "${filters[@]}"
 }
 
 bws::cmd::task::get() {
-    # TODO: get task, interactive select if no arg
-    :
+    local task_id=""
+    local filters=()
+
+    for arg in "$@"; do
+        case "$arg" in
+            --*) filters+=("$arg") ;;
+            *) task_id="$arg" ;;
+        esac
+    done
+
+    if [[ -z "$task_id" ]]; then
+        task_id=$(bws::ui::select_task "" "${filters[@]}") || return 1
+    fi
+
+    bws::get_task "$task_id"
 }
 
 bws::cmd::task::ready() {
