@@ -58,7 +58,7 @@ When required IDs are omitted, GUM prompts for selection:
 src/
 ├── bws                   # Main entry point
 ├── lib/
-│   ├── core.sh          # Project/task query functions
+│   ├── query.sh         # Project/task query functions
 │   ├── config.sh        # Config file loading
 │   ├── validate.sh      # Status and priority validation
 │   └── ui.sh            # GUM-based interactive selection

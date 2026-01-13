@@ -14,7 +14,7 @@ spec: todo/setup-cli.md
 - `bws::get_root` - return BWS_ROOT (resolved to absolute path)
 - Create default if none found
 
-### 3. Implement `src/lib/core.sh`
+### 3. Implement `src/lib/query.sh`
 Adapt from `reference/scripts/bws.sh`:
 - `bws::get_project`
 - `bws::list_projects`

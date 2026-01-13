@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Core project/task query functions
+# Project/task query functions
 
 bws::get_project() {
     # TODO: implement
