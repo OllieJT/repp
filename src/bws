@@ -37,7 +37,7 @@ bws::main() {
             ;;
         task-spec)
             case "$action" in
-                get) bws::cmd::task_spec::get "$@" ;;
+                get) bws::cmd::task-spec::get "$@" ;;
                 *)   bws::usage ;;
             esac
             ;;
