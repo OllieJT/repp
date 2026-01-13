@@ -8,8 +8,16 @@ bws::load_config() {
     local config_paths=(
         "$PWD/.bwsrc"
         "$(git rev-parse --show-toplevel 2>/dev/null)/.bwsrc"
-        "$HOME/.config/bws/config"
     )
+
+    # Add script's git root if available
+    if [[ -n "${_BWS_SCRIPT_DIR:-}" ]]; then
+        local script_git_root
+        script_git_root="$(cd "$_BWS_SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null)"
+        [[ -n "$script_git_root" ]] && config_paths+=("$script_git_root/.bwsrc")
+    fi
+
+    config_paths+=("$HOME/.config/bws/config")
 
     for path in "${config_paths[@]}"; do
         [[ -z "$path" || "$path" == "/.bwsrc" ]] && continue
@@ -44,7 +52,10 @@ bws::get_root() {
     fi
 
     if command -v realpath &>/dev/null; then
-        resolved="$(realpath -m "$resolved" 2>/dev/null)" || resolved="$resolved"
+        local realpath_result
+        if realpath_result="$(realpath -m "$resolved" 2>/dev/null)"; then
+            resolved="$realpath_result"
+        fi
     fi
 
     if [[ ! -d "$resolved" ]]; then
