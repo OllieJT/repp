@@ -17,7 +17,7 @@ bws::cmd::project::get() {
     done
 
     if [[ -z "$project_id" ]]; then
-        project_id=$(bws::ui::select_project "${filters[@]}") || return 1
+        project_id=$(bws::ui::select_project ${filters[@]+"${filters[@]}"}) || return 1
     fi
 
     bws::get_project "$project_id"

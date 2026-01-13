@@ -10,7 +10,7 @@ bws::ui::select_project() {
     [[ -z "$projects" ]] && return 1
 
     local items
-    items=$(echo "$projects" | yq -r 'select(.) | [.id, .description] | join(" — ")')
+    items=$(echo "$projects" | yq eval-all -r 'select(.) | [.id, .description] | join(" — ")')
 
     local selection
     selection=$(echo "$items" | gum filter --placeholder "Select project...")
@@ -34,7 +34,7 @@ bws::ui::select_task() {
     [[ -z "$tasks" ]] && return 1
 
     local items
-    items=$(echo "$tasks" | yq -r 'select(.) | [.id, .description] | join(" — ")')
+    items=$(echo "$tasks" | yq eval-all -r 'select(.) | [.id, .description] | join(" — ")')
 
     local selection
     selection=$(echo "$items" | gum filter --placeholder "Select task...")
