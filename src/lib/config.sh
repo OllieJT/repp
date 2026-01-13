@@ -38,7 +38,7 @@ bws::load_config() {
 }
 
 bws::get_root() {
-    [[ -z "$_BWS_CONFIG_FILE" ]] && bws::load_config
+    [[ -z "$_BWS_CONFIG_FILE" ]] && { bws::load_config || return 1; }
 
     local root="${BWS_ROOT:-projects}"
     local resolved
