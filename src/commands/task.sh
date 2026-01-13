@@ -10,3 +10,9 @@ bws::cmd::task::get() {
     # TODO: get task, interactive select if no arg
     :
 }
+
+bws::cmd::task::check() {
+    # TODO: check if task is blocked
+    # Exit 0=blocked, 1=not blocked
+    :
+}
