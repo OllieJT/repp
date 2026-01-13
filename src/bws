@@ -17,38 +17,44 @@ source "$SCRIPT_DIR/commands/is-blocked.sh"
 
 bws::main() {
     local resource="${1:-}"
-    local action="${2:-}"
-    shift 2 2>/dev/null || true
 
     case "$resource" in
-        project)
-            case "$action" in
-                list) bws::cmd::project::list "$@" ;;
-                get)  bws::cmd::project::get "$@" ;;
-                *)    bws::usage ;;
-            esac
-            ;;
-        task)
-            case "$action" in
-                list) bws::cmd::task::list "$@" ;;
-                get)  bws::cmd::task::get "$@" ;;
-                *)    bws::usage ;;
-            esac
-            ;;
-        task-spec)
-            case "$action" in
-                get) bws::cmd::task_spec::get "$@" ;;
-                *)   bws::usage ;;
-            esac
-            ;;
         is-blocked)
-            bws::cmd::is_blocked "$action" "$@"
+            shift 1
+            bws::cmd::is_blocked "$@"
             ;;
         --help|-h|"")
             bws::usage
             ;;
         *)
-            bws::usage
+            local action="${2:-}"
+            shift 2 2>/dev/null || true
+
+            case "$resource" in
+                project)
+                    case "$action" in
+                        list) bws::cmd::project::list "$@" ;;
+                        get)  bws::cmd::project::get "$@" ;;
+                        *)    bws::usage ;;
+                    esac
+                    ;;
+                task)
+                    case "$action" in
+                        list) bws::cmd::task::list "$@" ;;
+                        get)  bws::cmd::task::get "$@" ;;
+                        *)    bws::usage ;;
+                    esac
+                    ;;
+                task-spec)
+                    case "$action" in
+                        get) bws::cmd::task_spec::get "$@" ;;
+                        *)   bws::usage ;;
+                    esac
+                    ;;
+                *)
+                    bws::usage
+                    ;;
+            esac
             ;;
     esac
 }
