@@ -1,17 +1,49 @@
 #!/usr/bin/env bash
 # GUM-based interactive selection
 
+source "$(dirname "${BASH_SOURCE[0]}")/query.sh"
+
 bws::ui::select_project() {
-    # TODO: gum filter over project list, returns ID
-    :
+    local items
+    items=$(bws::scan_projects "$@") || return $BWS_EXIT_ERROR
+
+    if [[ -z "$items" ]]; then
+        bws::log::error "no projects found"
+        return $BWS_EXIT_ERROR
+    fi
+
+    gum filter --header "Select project" <<< "$items"
 }
 
 bws::ui::select_task() {
-    # TODO: gum filter over task list, returns ID
-    :
+    local project_id="$1"
+    shift || true
+
+    if [[ -z "$project_id" ]]; then
+        project_id=$(bws::ui::select_project) || return $BWS_EXIT_ERROR
+    fi
+
+    local items
+    items=$(bws::scan_tasks "$project_id" "$@") || return $BWS_EXIT_ERROR
+
+    if [[ -z "$items" ]]; then
+        bws::log::error "no tasks found"
+        return $BWS_EXIT_ERROR
+    fi
+
+    gum filter --header "Select task" <<< "$items"
 }
 
 bws::ui::display_yaml() {
-    # TODO: styled YAML output
-    :
+    local input
+    input=$(cat)
+
+    [[ -z "$input" ]] && return $BWS_EXIT_SUCCESS
+
+    if command -v gum &>/dev/null; then
+        echo "$input" | gum format -t code
+    else
+        echo "$input"
+    fi
+    return $BWS_EXIT_SUCCESS
 }

@@ -2,6 +2,13 @@
 
 spec: todo/setup-cli.md
 
+## Prompt
+
+@todo/setup-cli.md @README.md Continue work on this CLI tool by planning a clear implementation plan for the following work. You should avoid any assumptions and ask clarifying questions as needed.
+
+
+---
+
 ## Steps
 
 ### 1. Create directory structure
