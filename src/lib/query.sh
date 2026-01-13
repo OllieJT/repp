@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
-# Project/task query functions
+# Plan/task query functions
 
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/validate.sh"
 
-bws::get_project() {
+repp::get_plan() {
     local id="$1"
 
     if [[ -z "$id" ]]; then
-        bws::log::error "project-id required"
-        return $BWS_EXIT_ERROR
+        repp::log::error "plan-id required"
+        return $REPP_EXIT_ERROR
     fi
 
     local root
-    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local file="$root/$id/PROJECT.yml"
+    local file="$root/$id/PLAN.yml"
 
     if [[ ! -f "$file" ]]; then
-        bws::log::info "project '$id' not found"
-        return $BWS_EXIT_ERROR
+        repp::log::info "plan '$id' not found"
+        return $REPP_EXIT_ERROR
     fi
 
     if command -v gum &>/dev/null; then
@@ -28,10 +28,10 @@ bws::get_project() {
         echo "id: $id"
         cat "$file"
     fi
-    return $BWS_EXIT_SUCCESS
+    return $REPP_EXIT_SUCCESS
 }
 
-bws::list_projects() {
+repp::list_plans() {
     local filter_status=""
     local filter_priority=""
 
@@ -43,18 +43,18 @@ bws::list_projects() {
     done
 
     if [[ -n "$filter_status" ]]; then
-        bws::validate_status "$filter_status" || return $BWS_EXIT_ERROR
+        repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
     fi
     if [[ -n "$filter_priority" ]]; then
-        bws::validate_priority "$filter_priority" || return $BWS_EXIT_ERROR
+        repp::validate_priority "$filter_priority" || return $REPP_EXIT_ERROR
     fi
 
     local root
-    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
     local found=0
 
-    for f in "$root"/*/PROJECT.yml; do
+    for f in "$root"/*/PLAN.yml; do
         [[ -f "$f" ]] || continue
 
         local id
@@ -73,33 +73,33 @@ bws::list_projects() {
         ((found++)) || true
     done
 
-    [[ $found -eq 0 ]] && bws::log::info "no projects found"
-    return $BWS_EXIT_SUCCESS
+    [[ $found -eq 0 ]] && repp::log::info "no plans found"
+    return $REPP_EXIT_SUCCESS
 }
 
-bws::get_task() {
+repp::get_task() {
     local id="$1"
 
     if [[ -z "$id" ]]; then
-        bws::log::error "task-id required"
-        return $BWS_EXIT_ERROR
+        repp::log::error "task-id required"
+        return $REPP_EXIT_ERROR
     fi
 
     if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        bws::log::error "task-id must be 'project-slug/task-slug'"
-        return $BWS_EXIT_ERROR
+        repp::log::error "task-id must be 'plan-slug/task-slug'"
+        return $REPP_EXIT_ERROR
     fi
 
     local root
-    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local project_id="${id%/*}"
+    local plan_id="${id%/*}"
     local task_slug="${id#*/}"
-    local file="$root/$project_id/$task_slug/TASK.yml"
+    local file="$root/$plan_id/$task_slug/TASK.yml"
 
     if [[ ! -f "$file" ]]; then
-        bws::log::info "task '$id' not found"
-        return $BWS_EXIT_ERROR
+        repp::log::info "task '$id' not found"
+        return $REPP_EXIT_ERROR
     fi
 
     if command -v gum &>/dev/null; then
@@ -108,18 +108,18 @@ bws::get_task() {
         echo "id: $id"
         cat "$file"
     fi
-    return $BWS_EXIT_SUCCESS
+    return $REPP_EXIT_SUCCESS
 }
 
-bws::list_tasks() {
-    local project_id="$1"
+repp::list_tasks() {
+    local plan_id="$1"
     shift || true
     local filter_status=""
     local filter_priority=""
 
-    if [[ -z "$project_id" ]]; then
-        bws::log::error "project-id required"
-        return $BWS_EXIT_ERROR
+    if [[ -z "$plan_id" ]]; then
+        repp::log::error "plan-id required"
+        return $REPP_EXIT_ERROR
     fi
 
     for arg in "$@"; do
@@ -130,30 +130,30 @@ bws::list_tasks() {
     done
 
     if [[ -n "$filter_status" ]]; then
-        bws::validate_status "$filter_status" || return $BWS_EXIT_ERROR
+        repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
     fi
     if [[ -n "$filter_priority" ]]; then
-        bws::validate_priority "$filter_priority" || return $BWS_EXIT_ERROR
+        repp::validate_priority "$filter_priority" || return $REPP_EXIT_ERROR
     fi
 
     local root
-    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local project_dir="$root/$project_id"
+    local plan_dir="$root/$plan_id"
 
-    if [[ ! -d "$project_dir" ]]; then
-        bws::log::info "project '$project_id' not found"
-        return $BWS_EXIT_ERROR
+    if [[ ! -d "$plan_dir" ]]; then
+        repp::log::info "plan '$plan_id' not found"
+        return $REPP_EXIT_ERROR
     fi
 
     local found=0
 
-    for f in "$project_dir"/*/TASK.yml; do
+    for f in "$plan_dir"/*/TASK.yml; do
         [[ -f "$f" ]] || continue
 
         local task_slug
         task_slug=$(basename "$(dirname "$f")")
-        local id="$project_id/$task_slug"
+        local id="$plan_id/$task_slug"
         local status
         status=$(yq '.status' "$f")
         local priority
@@ -168,11 +168,11 @@ bws::list_tasks() {
         ((found++)) || true
     done
 
-    [[ $found -eq 0 ]] && bws::log::info "no tasks found in '$project_id'"
-    return $BWS_EXIT_SUCCESS
+    [[ $found -eq 0 ]] && repp::log::info "no tasks found in '$plan_id'"
+    return $REPP_EXIT_SUCCESS
 }
 
-bws::scan_projects() {
+repp::scan_plans() {
     local filter_status=""
     local filter_priority=""
 
@@ -184,18 +184,18 @@ bws::scan_projects() {
     done
 
     if [[ -n "$filter_status" ]]; then
-        bws::validate_status "$filter_status" || return $BWS_EXIT_ERROR
+        repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
     fi
     if [[ -n "$filter_priority" ]]; then
-        bws::validate_priority "$filter_priority" || return $BWS_EXIT_ERROR
+        repp::validate_priority "$filter_priority" || return $REPP_EXIT_ERROR
     fi
 
     local root
-    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
     local found=0
 
-    for f in "$root"/*/PROJECT.yml; do
+    for f in "$root"/*/PLAN.yml; do
         [[ -f "$f" ]] || continue
 
         local id
@@ -212,19 +212,19 @@ bws::scan_projects() {
         ((found++)) || true
     done
 
-    [[ $found -eq 0 ]] && bws::log::info "no projects found"
-    return $BWS_EXIT_SUCCESS
+    [[ $found -eq 0 ]] && repp::log::info "no plans found"
+    return $REPP_EXIT_SUCCESS
 }
 
-bws::scan_tasks() {
-    local project_id="$1"
+repp::scan_tasks() {
+    local plan_id="$1"
     shift || true
     local filter_status=""
     local filter_priority=""
 
-    if [[ -z "$project_id" ]]; then
-        bws::log::error "project-id required"
-        return $BWS_EXIT_ERROR
+    if [[ -z "$plan_id" ]]; then
+        repp::log::error "plan-id required"
+        return $REPP_EXIT_ERROR
     fi
 
     for arg in "$@"; do
@@ -235,30 +235,30 @@ bws::scan_tasks() {
     done
 
     if [[ -n "$filter_status" ]]; then
-        bws::validate_status "$filter_status" || return $BWS_EXIT_ERROR
+        repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
     fi
     if [[ -n "$filter_priority" ]]; then
-        bws::validate_priority "$filter_priority" || return $BWS_EXIT_ERROR
+        repp::validate_priority "$filter_priority" || return $REPP_EXIT_ERROR
     fi
 
     local root
-    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local project_dir="$root/$project_id"
+    local plan_dir="$root/$plan_id"
 
-    if [[ ! -d "$project_dir" ]]; then
-        bws::log::info "project '$project_id' not found"
-        return $BWS_EXIT_ERROR
+    if [[ ! -d "$plan_dir" ]]; then
+        repp::log::info "plan '$plan_id' not found"
+        return $REPP_EXIT_ERROR
     fi
 
     local found=0
 
-    for f in "$project_dir"/*/TASK.yml; do
+    for f in "$plan_dir"/*/TASK.yml; do
         [[ -f "$f" ]] || continue
 
         local task_slug
         task_slug=$(basename "$(dirname "$f")")
-        local id="$project_id/$task_slug"
+        local id="$plan_id/$task_slug"
         local status
         status=$(yq '.status' "$f")
         local priority
@@ -271,33 +271,33 @@ bws::scan_tasks() {
         ((found++)) || true
     done
 
-    [[ $found -eq 0 ]] && bws::log::info "no tasks found in '$project_id'"
-    return $BWS_EXIT_SUCCESS
+    [[ $found -eq 0 ]] && repp::log::info "no tasks found in '$plan_id'"
+    return $REPP_EXIT_SUCCESS
 }
 
-bws::get_task_spec() {
+repp::get_task_spec() {
     local id="$1"
 
     if [[ -z "$id" ]]; then
-        bws::log::error "task-id required"
-        return $BWS_EXIT_ERROR
+        repp::log::error "task-id required"
+        return $REPP_EXIT_ERROR
     fi
 
     if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        bws::log::error "task-id must be 'project-slug/task-slug'"
-        return $BWS_EXIT_ERROR
+        repp::log::error "task-id must be 'plan-slug/task-slug'"
+        return $REPP_EXIT_ERROR
     fi
 
     local root
-    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local project_id="${id%/*}"
+    local plan_id="${id%/*}"
     local task_slug="${id#*/}"
-    local file="$root/$project_id/$task_slug/SPEC.md"
+    local file="$root/$plan_id/$task_slug/SPEC.md"
 
     if [[ ! -f "$file" ]]; then
-        bws::log::info "could not find spec for task '$id'"
-        return $BWS_EXIT_ERROR
+        repp::log::info "could not find spec for task '$id'"
+        return $REPP_EXIT_ERROR
     fi
 
     if command -v gum &>/dev/null; then
@@ -305,52 +305,52 @@ bws::get_task_spec() {
     else
         cat "$file"
     fi
-    return $BWS_EXIT_SUCCESS
+    return $REPP_EXIT_SUCCESS
 }
 
-bws::is_task_blocked() {
+repp::is_task_blocked() {
     # Exit codes use INVERTED semantics for conditional usage:
-    #   0 (BWS_EXIT_SUCCESS) = task IS blocked
-    #   1 (BWS_EXIT_ERROR)   = task is NOT blocked (or error)
+    #   0 (REPP_EXIT_SUCCESS) = task IS blocked
+    #   1 (REPP_EXIT_ERROR)   = task is NOT blocked (or error)
     local id="$1"
 
     if [[ -z "$id" ]]; then
-        bws::log::error "task-id required"
-        return $BWS_EXIT_ERROR
+        repp::log::error "task-id required"
+        return $REPP_EXIT_ERROR
     fi
 
     if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        bws::log::error "task-id must be 'project-slug/task-slug'"
-        return $BWS_EXIT_ERROR
+        repp::log::error "task-id must be 'plan-slug/task-slug'"
+        return $REPP_EXIT_ERROR
     fi
 
     local root
-    root="$(bws::get_root)" || return $BWS_EXIT_ERROR
+    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local project_id="${id%/*}"
+    local plan_id="${id%/*}"
     local task_slug="${id#*/}"
-    local file="$root/$project_id/$task_slug/TASK.yml"
+    local file="$root/$plan_id/$task_slug/TASK.yml"
 
     if [[ ! -f "$file" ]]; then
-        bws::log::error "task '$id' not found"
-        return $BWS_EXIT_ERROR
+        repp::log::error "task '$id' not found"
+        return $REPP_EXIT_ERROR
     fi
 
     local blockers
     blockers=$(yq '.blocked_by // [] | .[]' "$file" 2>/dev/null)
 
     # No blockers = not blocked
-    [[ -z "$blockers" ]] && return $BWS_EXIT_ERROR
+    [[ -z "$blockers" ]] && return $REPP_EXIT_ERROR
 
     while IFS= read -r blocker_id; do
-        local blocker_project="${blocker_id%/*}"
+        local blocker_plan="${blocker_id%/*}"
         local blocker_task="${blocker_id#*/}"
-        local blocker_file="$root/$blocker_project/$blocker_task/TASK.yml"
+        local blocker_file="$root/$blocker_plan/$blocker_task/TASK.yml"
 
         if [[ ! -f "$blocker_file" ]]; then
-            bws::log::warn "blocker '$blocker_id' not found"
+            repp::log::warn "blocker '$blocker_id' not found"
             # Missing blocker treated as blocked (conservative)
-            return $BWS_EXIT_SUCCESS
+            return $REPP_EXIT_SUCCESS
         fi
 
         local blocker_status
@@ -358,10 +358,10 @@ bws::is_task_blocked() {
 
         if [[ "$blocker_status" != "done" ]]; then
             # Found incomplete blocker = task is blocked
-            return $BWS_EXIT_SUCCESS
+            return $REPP_EXIT_SUCCESS
         fi
     done <<< "$blockers"
 
     # All blockers complete = not blocked
-    return $BWS_EXIT_ERROR
+    return $REPP_EXIT_ERROR
 }

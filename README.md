@@ -1,6 +1,6 @@
-# Branch Work System `bws`
+# Repo Plans `repp`
 
-File-based project and task tracking that lives in git.
+File-based plan and task tracking that lives in git.
 
 ## Problem
 
@@ -12,11 +12,11 @@ File-based project and task tracking that lives in git.
 
 ## Solution
 
-Track projects and tasks as files in the repository:
+Track plans and tasks as files in the repository:
 
 - **YAML metadata** for status, priority, dependencies
 - **Markdown specs** for detailed requirements
-- **Git branches** map 1:1 with projects
+- **Git branches** map 1:1 with plans
 - **Shell-native** querying with standard tools
 
 Everything versions together. Branch the code, branch the work tracking.
@@ -33,12 +33,12 @@ Everything versions together. Branch the code, branch the work tracking.
 
 ## Data Model
 
-### PROJECT.yml
+### PLAN.yml
 
 ```yaml
 # Required
 priority: number     # 0 (critical) | 1 | 2 | 3 | 4 (lowest)
-description: string  # Why this project matters
+description: string  # Why this plan matters
 status: string       # backlog | in_progress | done
 ```
 
@@ -61,7 +61,7 @@ status: string       # backlog | in_progress | review | done
 
 # Optional
 blocked_by:          # Task IDs that must complete first
-  - project-slug/task-slug
+  - plan-slug/task-slug
 comments:            # Append-only timestamped notes
   - "2024-01-15: Started investigation"
 ```
@@ -85,20 +85,20 @@ Optional markdown file for detailed task specifications.
 
 ## Commands
 
-### Project Commands
+### Plan Commands
 
-**`bws project list`** — List all projects
+**`repp plan list`** — List all plans
 ```
 --status=X        Filter by status (backlog|in_progress|done)
 --min-priority=X  Filter by minimum priority (0-4)
 ```
 
-**`bws project get [project-id]`** — Get project details
+**`repp plan get [plan-id]`** — Get plan details
 ```
-Interactive selection if project-id omitted
+Interactive selection if plan-id omitted
 ```
 
-**`bws project scan`** — List project IDs only
+**`repp plan scan`** — List plan IDs only
 ```
 --status=X        Filter by status
 --min-priority=X  Filter by minimum priority
@@ -106,30 +106,30 @@ Interactive selection if project-id omitted
 
 ### Task Commands
 
-**`bws task list [project-id]`** — List tasks in a project
+**`repp task list [plan-id]`** — List tasks in a plan
 ```
 --status=X        Filter by status (backlog|in_progress|review|done)
 --min-priority=X  Filter by minimum priority (0-4)
 ```
 
-**`bws task get [task-id]`** — Get task details
+**`repp task get [task-id]`** — Get task details
 ```
-task-id format: project-id/task-slug
+task-id format: plan-id/task-slug
 Interactive selection if task-id omitted
 ```
 
-**`bws task get-spec [task-id]`** — Get task specification
+**`repp task get-spec [task-id]`** — Get task specification
 ```
 Interactive selection if task-id omitted
 ```
 
-**`bws task is-blocked <task-id>`** — Check if task is blocked
+**`repp task is-blocked <task-id>`** — Check if task is blocked
 ```
 Exit 0 = blocked
 Exit 1 = not blocked
 ```
 
-**`bws task scan [project-id]`** — List task IDs only
+**`repp task scan [plan-id]`** — List task IDs only
 ```
 --status=X        Filter by status
 --min-priority=X  Filter by minimum priority
@@ -137,10 +137,10 @@ Exit 1 = not blocked
 
 ## Configuration
 
-Create `.bwsrc` in project root:
+Create `.repprc` in project root:
 
 ```bash
-BWS_ROOT="path/to/projects"
+REPP_ROOT="path/to/plans"
 ```
 
 ## Dependencies

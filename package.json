@@ -1,12 +1,12 @@
 {
-  "name": "branch-work",
+  "name": "repo-plans",
   "version": "0.0.0",
-  "description": "File-based project and task management that lives in git.",
+  "description": "File-based plan and task management that lives in git.",
   "engines": {
     "node": ">=24"
   },
   "bin": {
-    "bws": "./src/bws"
+    "repp": "./src/repp"
   },
   "files": [
     "src/"
@@ -14,14 +14,14 @@
   "keywords": [
     "cli",
     "task-management",
-    "project-management",
+    "plan-management",
     "ralph",
     "context management",
     "productivity"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/OllieJT/branch-work.git"
+    "url": "https://github.com/OllieJT/repo-plans.git"
   },
   "license": "ISC",
   "scripts": {

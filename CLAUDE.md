@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Bench Work (BW) is a file-based system for tracking projects and tasks. Everything lives in the repo—no external tools, no syncing, no dependencies.
+Repo Plans (repp) is a file-based system for tracking plans and tasks. Everything lives in the repo—no external tools, no syncing, no dependencies.
 
 ## General Rules
 

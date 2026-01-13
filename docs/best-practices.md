@@ -4,20 +4,20 @@
 
 ### Branch Naming
 
-Projects map to feature branches:
+Plans map to feature branches:
 
 ```
-project/auth-system
-project/billing-integration
-project/mobile-app-v2
+plan/auth-system
+plan/billing-integration
+plan/mobile-app-v2
 ```
 
 ### Workflow
 
-1. Create branch: `git checkout -b project/{slug}`
+1. Create branch: `git checkout -b plan/{slug}`
 2. Tasks become commits or commit groups
-3. PROJECT.yml and TASK.yml update alongside code
-4. Merge to main when project completes
+3. PLAN.yml and TASK.yml update alongside code
+4. Merge to main when plan completes
 
 ### Conflict Resolution
 

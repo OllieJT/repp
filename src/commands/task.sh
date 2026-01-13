@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 # Task command handlers
 
-bws::cmd::task::list() {
-    local project_id=""
+repp::cmd::task::list() {
+    local plan_id=""
     local filters=()
 
     for arg in "$@"; do
         case "$arg" in
             --*) filters+=("$arg") ;;
-            *) project_id="$arg" ;;
+            *) plan_id="$arg" ;;
         esac
     done
 
-    if [[ -z "$project_id" ]]; then
-        project_id=$(bws::ui::select_project) || return $BWS_EXIT_ERROR
+    if [[ -z "$plan_id" ]]; then
+        plan_id=$(repp::ui::select_plan) || return $REPP_EXIT_ERROR
     fi
 
-    bws::list_tasks "$project_id" ${filters[@]+"${filters[@]}"}
+    repp::list_tasks "$plan_id" ${filters[@]+"${filters[@]}"}
     return $?
 }
 
-bws::cmd::task::get() {
+repp::cmd::task::get() {
     local task_id=""
     local filters=()
 
@@ -32,14 +32,14 @@ bws::cmd::task::get() {
     done
 
     if [[ -z "$task_id" ]]; then
-        task_id=$(bws::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return $BWS_EXIT_ERROR
+        task_id=$(repp::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return $REPP_EXIT_ERROR
     fi
 
-    bws::get_task "$task_id"
+    repp::get_task "$task_id"
     return $?
 }
 
-bws::cmd::task::get_spec() {
+repp::cmd::task::get_spec() {
     local task_id=""
     local filters=()
 
@@ -51,41 +51,41 @@ bws::cmd::task::get_spec() {
     done
 
     if [[ -z "$task_id" ]]; then
-        task_id=$(bws::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return $BWS_EXIT_ERROR
+        task_id=$(repp::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return $REPP_EXIT_ERROR
     fi
 
-    bws::get_task_spec "$task_id"
+    repp::get_task_spec "$task_id"
     return $?
 }
 
-bws::cmd::task::is_blocked() {
+repp::cmd::task::is_blocked() {
     local task_id="$1"
 
     if [[ -z "$task_id" ]]; then
-        bws::log::error "task-id required"
-        bws::log::info "Usage: bws task is-blocked <task-id>"
-        return $BWS_EXIT_ERROR
+        repp::log::error "task-id required"
+        repp::log::info "Usage: repp task is-blocked <task-id>"
+        return $REPP_EXIT_ERROR
     fi
 
-    bws::is_task_blocked "$task_id"
+    repp::is_task_blocked "$task_id"
     return $?
 }
 
-bws::cmd::task::scan() {
-    local project_id=""
+repp::cmd::task::scan() {
+    local plan_id=""
     local filters=()
 
     for arg in "$@"; do
         case "$arg" in
             --*) filters+=("$arg") ;;
-            *) project_id="$arg" ;;
+            *) plan_id="$arg" ;;
         esac
     done
 
-    if [[ -z "$project_id" ]]; then
-        project_id=$(bws::ui::select_project) || return $BWS_EXIT_ERROR
+    if [[ -z "$plan_id" ]]; then
+        plan_id=$(repp::ui::select_plan) || return $REPP_EXIT_ERROR
     fi
 
-    bws::scan_tasks "$project_id" ${filters[@]+"${filters[@]}"}
+    repp::scan_tasks "$plan_id" ${filters[@]+"${filters[@]}"}
     return $?
 }

@@ -4,7 +4,7 @@
 
 ```
 ┌─────────────────────────────────────┐
-│           bws                       │  CLI entry point
+│           repp                      │  CLI entry point
 ├─────────────────────────────────────┤
 │     src/commands/                   │  Command handlers
 ├─────────────────────────────────────┤
@@ -17,9 +17,9 @@
 ## Directory Structure
 
 ```
-{BWS_ROOT}/
-└── {project-slug}/
-    ├── PROJECT.yml              # Project metadata
+{REPP_ROOT}/
+└── {plan-slug}/
+    ├── PLAN.yml              # Plan metadata
     └── {task-slug}/
         ├── TASK.yml             # Task metadata
         └── SPEC.md              # Optional detailed spec
@@ -29,9 +29,9 @@
 
 ```
 src/
-├── bws                          # CLI entry point
+├── repp                         # CLI entry point
 ├── commands/
-│   ├── project/
+│   ├── plan/
 │   │   ├── list.sh
 │   │   ├── get.sh
 │   │   └── scan.sh
@@ -43,7 +43,7 @@ src/
 │       └── scan.sh
 └── lib/
     ├── config.sh                # Configuration loading
-    ├── project.sh               # Project operations
+    ├── plan.sh                  # Plan operations
     ├── task.sh                  # Task operations
     └── utils.sh                 # Shared utilities
 ```
