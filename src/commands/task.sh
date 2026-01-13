@@ -36,21 +36,3 @@ bws::cmd::task::get() {
 
     bws::get_task "$task_id"
 }
-
-bws::cmd::task::ready() {
-    local task_id=""
-    local filters=()
-
-    for arg in "$@"; do
-        case "$arg" in
-            --*) filters+=("$arg") ;;
-            *) task_id="$arg" ;;
-        esac
-    done
-
-    if [[ -z "$task_id" ]]; then
-        task_id=$(bws::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return 1
-    fi
-
-    bws::is_task_blocked "$task_id"
-}

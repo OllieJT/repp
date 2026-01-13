@@ -132,7 +132,7 @@ bws::list_tasks() {
 
     if [[ ! -d "$project_dir" ]]; then
         echo "Note: project '$project_id' not found" >&2
-        return 0
+        return 1
     fi
 
     local found=0
@@ -224,16 +224,17 @@ bws::is_task_blocked() {
         local blocker_file="$root/$blocker_project/$blocker_task/TASK.yml"
 
         if [[ ! -f "$blocker_file" ]]; then
-            return 1
+            echo "Warning: blocker '$blocker_id' not found" >&2
+            return 0
         fi
 
         local blocker_status
         blocker_status=$(yq '.status' "$blocker_file")
 
         if [[ "$blocker_status" != "done" ]]; then
-            return 1
+            return 0
         fi
     done <<< "$blockers"
 
-    return 0
+    return 1
 }
