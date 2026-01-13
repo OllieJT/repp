@@ -4,21 +4,15 @@
 source "$(dirname "${BASH_SOURCE[0]}")/query.sh"
 
 bws::ui::select_project() {
-    local projects
-    projects=$(bws::list_projects "$@") || return $BWS_EXIT_ERROR
-
-    [[ -z "$projects" ]] && return $BWS_EXIT_ERROR
-
     local items
-    items=$(echo "$projects" | yq eval-all -r 'select(.) | .id + (if .description then " — " + .description else "" end)')
+    items=$(bws::scan_projects "$@") || return $BWS_EXIT_ERROR
 
-    local selection
-    selection=$(echo "$items" | gum filter --placeholder "Select project...")
+    if [[ -z "$items" ]]; then
+        echo "Error: no projects found" >&2
+        return $BWS_EXIT_ERROR
+    fi
 
-    [[ -z "$selection" ]] && return $BWS_EXIT_ERROR
-
-    echo "${selection%% — *}"
-    return $BWS_EXIT_SUCCESS
+    gum filter --header "Select project" <<< "$items"
 }
 
 bws::ui::select_task() {
@@ -29,21 +23,15 @@ bws::ui::select_task() {
         project_id=$(bws::ui::select_project) || return $BWS_EXIT_ERROR
     fi
 
-    local tasks
-    tasks=$(bws::list_tasks "$project_id" "$@") || return $BWS_EXIT_ERROR
-
-    [[ -z "$tasks" ]] && return $BWS_EXIT_ERROR
-
     local items
-    items=$(echo "$tasks" | yq eval-all -r 'select(.) | .id + (if .description then " — " + .description else "" end)')
+    items=$(bws::scan_tasks "$project_id" "$@") || return $BWS_EXIT_ERROR
 
-    local selection
-    selection=$(echo "$items" | gum filter --placeholder "Select task...")
+    if [[ -z "$items" ]]; then
+        echo "Error: no tasks found" >&2
+        return $BWS_EXIT_ERROR
+    fi
 
-    [[ -z "$selection" ]] && return $BWS_EXIT_ERROR
-
-    echo "${selection%% — *}"
-    return $BWS_EXIT_SUCCESS
+    gum filter --header "Select task" <<< "$items"
 }
 
 bws::ui::display_yaml() {
