@@ -7,15 +7,15 @@ bws::validate_status() {
 
     if [[ -z "$status" ]]; then
         echo "Error: status required" >&2
-        return 1
+        return $BWS_EXIT_ERROR
     fi
 
     if [[ ! " $valid " =~ " $status " ]]; then
         echo "Error: invalid status '$status'. Valid: $valid" >&2
-        return 1
+        return $BWS_EXIT_ERROR
     fi
 
-    return 0
+    return $BWS_EXIT_SUCCESS
 }
 
 bws::validate_priority() {
@@ -23,13 +23,13 @@ bws::validate_priority() {
 
     if [[ -z "$priority" ]]; then
         echo "Error: priority required" >&2
-        return 1
+        return $BWS_EXIT_ERROR
     fi
 
     if ! [[ "$priority" =~ ^[0-4]$ ]]; then
         echo "Error: invalid priority '$priority'. Valid: 0-4" >&2
-        return 1
+        return $BWS_EXIT_ERROR
     fi
 
-    return 0
+    return $BWS_EXIT_SUCCESS
 }

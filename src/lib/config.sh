@@ -24,19 +24,19 @@ bws::load_config() {
         if [[ -f "$path" ]]; then
             if ! source "$path" 2>/dev/null; then
                 echo "Error: failed to source config '$path'" >&2
-                return 1
+                return $BWS_EXIT_ERROR
             fi
             _BWS_CONFIG_FILE="$path"
-            return 0
+            return $BWS_EXIT_SUCCESS
         fi
     done
 
     echo "Error: no config file found. Create .bwsrc with BWS_ROOT=\"path/to/projects\"" >&2
-    return 1
+    return $BWS_EXIT_ERROR
 }
 
 bws::get_root() {
-    [[ -z "$_BWS_CONFIG_FILE" ]] && { bws::load_config || return 1; }
+    [[ -z "$_BWS_CONFIG_FILE" ]] && { bws::load_config || return $BWS_EXIT_ERROR; }
 
     local root="${BWS_ROOT:-projects}"
     local resolved
@@ -58,8 +58,9 @@ bws::get_root() {
 
     if [[ ! -d "$resolved" ]]; then
         echo "Error: BWS_ROOT directory not found: $resolved" >&2
-        return 1
+        return $BWS_EXIT_ERROR
     fi
 
     echo "$resolved"
+    return $BWS_EXIT_SUCCESS
 }

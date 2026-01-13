@@ -13,8 +13,9 @@ bws::cmd::task_spec::get() {
     done
 
     if [[ -z "$task_id" ]]; then
-        task_id=$(bws::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return 1
+        task_id=$(bws::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return $BWS_EXIT_ERROR
     fi
 
     bws::get_task_spec "$task_id"
+    return $?
 }

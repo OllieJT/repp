@@ -13,12 +13,13 @@ bws::check_deps() {
     if [[ ${#missing[@]} -gt 0 ]]; then
         echo "Missing dependencies:" >&2
         printf '  - %s\n' "${missing[@]}" >&2
-        [[ " ${missing[*]} " == *" yq "* ]] && return 1
+        [[ " ${missing[*]} " == *" yq "* ]] && return $BWS_EXIT_ERROR
     fi
-    return 0
+    return $BWS_EXIT_SUCCESS
 }
 
 # Source libraries
+source "$SCRIPT_DIR/lib/exitcodes.sh"
 source "$SCRIPT_DIR/lib/config.sh"
 source "$SCRIPT_DIR/lib/query.sh"
 source "$SCRIPT_DIR/lib/validate.sh"
@@ -30,7 +31,7 @@ source "$SCRIPT_DIR/commands/task.sh"
 source "$SCRIPT_DIR/commands/task-spec.sh"
 source "$SCRIPT_DIR/commands/is-blocked.sh"
 
-bws::check_deps || exit 1
+bws::check_deps || exit $BWS_EXIT_ERROR
 
 # Resource-level help functions
 bws::help::project() {
@@ -179,10 +180,10 @@ EOF
 bws::has_help_flag() {
     for arg in "$@"; do
         case "$arg" in
-            --help|-h) return 0 ;;
+            --help|-h) return $BWS_EXIT_SUCCESS ;;
         esac
     done
-    return 1
+    return $BWS_EXIT_ERROR
 }
 
 bws::main() {
@@ -193,51 +194,51 @@ bws::main() {
     case "$resource" in
         project)
             case "$action" in
-                --help|-h|"") bws::help::project ;;
+                --help|-h|"") bws::help::project; return $BWS_EXIT_SUCCESS ;;
                 list)
-                    if bws::has_help_flag "$@"; then bws::help::project::list
-                    else bws::cmd::project::list "$@"; fi
+                    if bws::has_help_flag "$@"; then bws::help::project::list; return $BWS_EXIT_SUCCESS
+                    else bws::cmd::project::list "$@"; return $?; fi
                     ;;
                 get)
-                    if bws::has_help_flag "$@"; then bws::help::project::get
-                    else bws::cmd::project::get "$@"; fi
+                    if bws::has_help_flag "$@"; then bws::help::project::get; return $BWS_EXIT_SUCCESS
+                    else bws::cmd::project::get "$@"; return $?; fi
                     ;;
                 *)
                     echo "Unknown action: $action" >&2
                     bws::help::project
-                    return 1
+                    return $BWS_EXIT_ERROR
                     ;;
             esac
             ;;
         task)
             case "$action" in
-                --help|-h|"") bws::help::task ;;
+                --help|-h|"") bws::help::task; return $BWS_EXIT_SUCCESS ;;
                 list)
-                    if bws::has_help_flag "$@"; then bws::help::task::list
-                    else bws::cmd::task::list "$@"; fi
+                    if bws::has_help_flag "$@"; then bws::help::task::list; return $BWS_EXIT_SUCCESS
+                    else bws::cmd::task::list "$@"; return $?; fi
                     ;;
                 get)
-                    if bws::has_help_flag "$@"; then bws::help::task::get
-                    else bws::cmd::task::get "$@"; fi
+                    if bws::has_help_flag "$@"; then bws::help::task::get; return $BWS_EXIT_SUCCESS
+                    else bws::cmd::task::get "$@"; return $?; fi
                     ;;
                 *)
                     echo "Unknown action: $action" >&2
                     bws::help::task
-                    return 1
+                    return $BWS_EXIT_ERROR
                     ;;
             esac
             ;;
         task-spec)
             case "$action" in
-                --help|-h|"") bws::help::task_spec ;;
+                --help|-h|"") bws::help::task_spec; return $BWS_EXIT_SUCCESS ;;
                 get)
-                    if bws::has_help_flag "$@"; then bws::help::task_spec::get
-                    else bws::cmd::task_spec::get "$@"; fi
+                    if bws::has_help_flag "$@"; then bws::help::task_spec::get; return $BWS_EXIT_SUCCESS
+                    else bws::cmd::task_spec::get "$@"; return $?; fi
                     ;;
                 *)
                     echo "Unknown action: $action" >&2
                     bws::help::task_spec
-                    return 1
+                    return $BWS_EXIT_ERROR
                     ;;
             esac
             ;;
@@ -245,19 +246,23 @@ bws::main() {
             # is-blocked has no actions - $action is the task-id
             if [[ "$action" == "--help" || "$action" == "-h" ]]; then
                 bws::help::is_blocked
+                return $BWS_EXIT_SUCCESS
             elif bws::has_help_flag "$@"; then
                 bws::help::is_blocked
+                return $BWS_EXIT_SUCCESS
             else
                 bws::cmd::is_blocked "$action" "$@"
+                return $?
             fi
             ;;
         --help|-h|"")
             bws::usage
+            return $BWS_EXIT_SUCCESS
             ;;
         *)
             echo "Unknown resource: $resource" >&2
             bws::usage
-            return 1
+            return $BWS_EXIT_ERROR
             ;;
     esac
 }

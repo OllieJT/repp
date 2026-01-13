@@ -13,10 +13,11 @@ bws::cmd::task::list() {
     done
 
     if [[ -z "$project_id" ]]; then
-        project_id=$(bws::ui::select_project) || return 1
+        project_id=$(bws::ui::select_project) || return $BWS_EXIT_ERROR
     fi
 
     bws::list_tasks "$project_id" ${filters[@]+"${filters[@]}"}
+    return $?
 }
 
 bws::cmd::task::get() {
@@ -31,8 +32,9 @@ bws::cmd::task::get() {
     done
 
     if [[ -z "$task_id" ]]; then
-        task_id=$(bws::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return 1
+        task_id=$(bws::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return $BWS_EXIT_ERROR
     fi
 
     bws::get_task "$task_id"
+    return $?
 }
