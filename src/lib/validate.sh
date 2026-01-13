@@ -2,11 +2,34 @@
 # Validation functions for status and priority
 
 bws::validate_status() {
-    # TODO: implement
-    :
+    local status="$1"
+    local valid="backlog discovery in_progress review done"
+
+    if [[ -z "$status" ]]; then
+        echo "Error: status required" >&2
+        return 1
+    fi
+
+    if [[ ! " $valid " =~ " $status " ]]; then
+        echo "Error: invalid status '$status'. Valid: $valid" >&2
+        return 1
+    fi
+
+    return 0
 }
 
 bws::validate_priority() {
-    # TODO: implement
-    :
+    local priority="$1"
+
+    if [[ -z "$priority" ]]; then
+        echo "Error: priority required" >&2
+        return 1
+    fi
+
+    if ! [[ "$priority" =~ ^[0-4]$ ]]; then
+        echo "Error: invalid priority '$priority'. Valid: 0-4" >&2
+        return 1
+    fi
+
+    return 0
 }
