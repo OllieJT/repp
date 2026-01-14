@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Resolve script directory (exported for config.sh)
-export _REPP_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve script directory, following symlinks (exported for config.sh)
+export _REPP_SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 SCRIPT_DIR="$_REPP_SCRIPT_DIR"
 
 repp::check_deps() {

@@ -1,4 +1,4 @@
-![repp](media/rpp-pill-lg.png)
+![repp](media/rpp-pill-shield.png) ![NPM Version](https://img.shields.io/npm/v/repp) ![GitHub License](https://img.shields.io/github/license/OllieJT/Repp) ![GitHub repo size](https://img.shields.io/github/repo-size/OllieJT/Repp)
 
 # Repo Plans `repp`
 
