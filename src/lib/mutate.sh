@@ -71,6 +71,6 @@ repp::add_task_comment() {
     local file
     file=$(repp::resolve_task_file "$id") || return $REPP_EXIT_ERROR
 
-    yq -yi ".comments = (.comments // []) + [\$comment]" "$file"
+    yq -yi --arg c "$comment" '.comments = (.comments // []) + [$c]' "$file"
     return $REPP_EXIT_SUCCESS
 }
