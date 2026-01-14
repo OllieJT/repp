@@ -96,10 +96,10 @@ repp::cmd::task::prioritize() {
 
     for arg in "$@"; do
         case "$arg" in
-            [0-4]) priority="$arg" ;;
             */*) task_id="$arg" ;;
+            [0-4]) priority="$arg" ;;
             *)
-                repp::log::error "invalid priority '$arg'. Valid: 0-4"
+                repp::log::error "unrecognized argument '$arg'"
                 return $REPP_EXIT_ERROR
                 ;;
         esac
