@@ -3,6 +3,7 @@
 
 _REPP_CONFIG_FILE=""
 REPP_ROOT=""
+REPP_PRIORITIES="${REPP_PRIORITIES:-P0,P1,P2,P3,P4}"
 
 repp::load_config() {
     local config_paths=(

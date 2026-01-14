@@ -217,6 +217,9 @@ Create `.repprc` in project root:
 ```bash
 # Path to your plans folder, relative to this file.
 REPP_ROOT="path/to/plans"
+
+# Optional: Custom priority values for interactive selection (default: P0,P1,P2,P3,P4)
+REPP_PRIORITIES="critical,high,medium,low"
 ```
 
 ## Dependencies

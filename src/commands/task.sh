@@ -107,7 +107,8 @@ repp::cmd::task::prioritize() {
 
     if [[ -z "$priority" ]]; then
         if command -v gum &>/dev/null; then
-            priority=$(gum input --header "Enter priority" --placeholder "e.g., 1, P1, high") || return $REPP_EXIT_ERROR
+            IFS=',' read -ra opts <<< "$REPP_PRIORITIES"
+            priority=$(gum choose --header "Select priority" "${opts[@]}") || return $REPP_EXIT_ERROR
         else
             repp::log::error "priority required"
             return $REPP_EXIT_ERROR
