@@ -1,7 +1,17 @@
 {
-  "name": "repo-plans",
+  "name": "repp",
   "version": "0.0.0",
   "description": "File-based plan and task management that lives in git.",
+  "author": "OllieJT",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OllieJT/repp.git"
+  },
+  "homepage": "https://github.com/OllieJT/repp",
+  "bugs": {
+    "url": "https://github.com/OllieJT/repp/issues"
+  },
   "engines": {
     "node": ">=24"
   },
@@ -15,15 +25,10 @@
     "cli",
     "task-management",
     "plan-management",
-    "ralph",
-    "context management",
+    "ralph-wiggum",
+    "context-management",
     "productivity"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/OllieJT/repo-plans.git"
-  },
-  "license": "ISC",
   "scripts": {
     "changeset": "changeset",
     "version": "changeset version",
