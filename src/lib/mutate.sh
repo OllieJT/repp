@@ -55,7 +55,7 @@ repp::set_task_status() {
     local file
     file=$(repp::resolve_task_file "$id") || return $REPP_EXIT_ERROR
 
-    yq -yi ".status = \"$status\"" "$file"
+    yq -yi --arg s "$status" '.status = $s' "$file"
     return $REPP_EXIT_SUCCESS
 }
 
