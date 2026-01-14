@@ -44,7 +44,7 @@ Everything versions together. Branch the code, branch the work tracking.
 ### PLAN.yml
 
 ```yaml
-priority: number     # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
+priority: string     # Any value (e.g., 1, 01, P1, high)
 description: string  # What this plan is for
 status: string       # backlog | in_progress | done
 ```
@@ -61,7 +61,7 @@ status: in_progress
 ### TASK.yml
 
 ```yaml
-priority: number     # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
+priority: string     # Any value (e.g., 1, 01, P1, high)
 description: string  # What this task accomplishes
 status: string       # backlog | in_progress | review | done
 
@@ -116,7 +116,7 @@ assignee: Agent
 ```sh
 repp plan list
   --status=X        # Filter by status (backlog|in_progress|done)
-  --min-priority=X  # Filter by minimum priority (0-4)
+  --priority=X,Y    # Filter by priority (exact match)
 ```
 
 #### Get plan details
@@ -129,7 +129,7 @@ repp plan get [plan-id]
 ```sh
 repp plan scan
   --status=X        # Filter by status
-  --min-priority=X  # Filter by minimum priority
+  --priority=X,Y    # Filter by priority (exact match)
 ```
 
 ### Task Commands
@@ -138,7 +138,7 @@ repp plan scan
 ```sh
 repp task list [plan-id]
   --status=X        # Filter by status (backlog|in_progress|review|done)
-  --min-priority=X  # Filter by minimum priority (0-4)
+  --priority=X,Y    # Filter by priority (exact match)
 ```
 
 #### Get task details
@@ -165,7 +165,7 @@ repp task is-blocked <task-id>
 ```sh
 repp task scan [plan-id]
   --status=X        # Filter by status
-  --min-priority=X  # Filter by minimum priority
+  --priority=X,Y    # Filter by priority (exact match)
 ```
 
 ## Configuration
