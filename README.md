@@ -10,7 +10,7 @@ File-based plan and task tracking that lives in your repository.
 
 **Structured for AI agents.** Agents read requirements, update status, and commit changes—all without external APIs. Detailed plans reduce context window bloat and maintain output quality.
 
-**Code as source of truth.** Your repo reflects what the app *is* and what needs to be *done*. Task state branches, merges, and diffs with the code.
+**Code as source of truth.** Your repo reflects what the app _is_ and what needs to be _done_. Task state branches, merges, and diffs with the code.
 
 ## What It Is Not
 
@@ -31,27 +31,28 @@ Everything versions together. Branch the code, branch the work tracking.
 
 ## Design Principles
 
-| Principle | Implementation |
-|-----------|---------------|
+| Principle          | Implementation                                            |
+| ------------------ | --------------------------------------------------------- |
 | Version controlled | All progress lives in git—branch, merge, review like code |
-| Conflict-friendly | YAML line-based format resolves merge conflicts cleanly |
-| Shell-native | Data readable with `grep`, `find`, `cat`—no lock-in |
-| Scales complexity | Simple tasks need one YAML file; complex ones add specs |
-| Zero dependencies | Works anywhere git works |
+| Conflict-friendly  | YAML line-based format resolves merge conflicts cleanly   |
+| Shell-native       | Data readable with `grep`, `find`, `cat`—no lock-in       |
+| Scales complexity  | Simple tasks need one YAML file; complex ones add specs   |
+| Zero dependencies  | Works anywhere git works                                  |
 
 ## Data Model
 
 ### PLAN.yml
 
 ```yaml
-priority: number     # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
-description: string  # What this plan is for
-status: string       # backlog | in_progress | done
+priority: number # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
+description: string # What this plan is for
+status: string # backlog | in_progress | done
 ```
 
 **Lifecycle:** `backlog → in_progress → done`
 
 **Example:**
+
 ```yaml
 priority: 1
 description: Implement authentication system
@@ -61,19 +62,20 @@ status: in_progress
 ### TASK.yml
 
 ```yaml
-priority: number     # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
-description: string  # What this task accomplishes
-status: string       # backlog | in_progress | review | done
+priority: number # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
+description: string # What this task accomplishes
+status: string # backlog | in_progress | review | done
 
-blocked_by:          # Optional: Task IDs that must complete first
+blocked_by: # Optional: Task IDs that must complete first
   - plan-slug/task-slug
-comments:            # Optional: Append notes to improve contextual awareness
+comments: # Optional: Append notes to improve contextual awareness
   - string
 ```
 
 **Lifecycle:** `backlog → in_progress → review ⇄ in_progress | done`
 
 **Example:**
+
 ```yaml
 priority: 2
 description: Configure OAuth providers
@@ -95,16 +97,19 @@ Optional markdown file for detailed task specifications.
 There is no expected structure for spec files.
 
 **Example:**
+
 ```md
-assignee: Agent
----
+## assignee: Agent
+
 # Requirements
+
 - [x] Update our BetterAuth configuration to use Oauth.
 - [x] Add Google as an Oauth Provider
 - [x] Add GitHub as an Oauth Provider
 - [ ] Add Apple as an Oauth Provider
 
 ## Guidelines
+
 ...
 ```
 
@@ -113,6 +118,7 @@ assignee: Agent
 ### Plan Commands
 
 #### List all plans
+
 ```sh
 repp plan list
   --status=X        # Filter by status (backlog|in_progress|done)
@@ -120,12 +126,14 @@ repp plan list
 ```
 
 #### Get plan details
+
 ```sh
 repp plan get [plan-id]
   # Interactive selection if plan-id omitted
 ```
 
 #### List plan IDs only
+
 ```sh
 repp plan scan
   --status=X        # Filter by status
@@ -135,6 +143,7 @@ repp plan scan
 ### Task Commands
 
 #### List tasks in a plan
+
 ```sh
 repp task list [plan-id]
   --status=X        # Filter by status (backlog|in_progress|review|done)
@@ -142,6 +151,7 @@ repp task list [plan-id]
 ```
 
 #### Get task details
+
 ```sh
 repp task get [task-id]
   # task-id format: plan-id/task-slug
@@ -149,12 +159,14 @@ repp task get [task-id]
 ```
 
 #### Get task specification
+
 ```sh
 repp task get-spec [task-id]
   # Interactive selection if task-id omitted
 ```
 
 #### Check if task is blocked
+
 ```sh
 repp task is-blocked <task-id>
   # Exit 0 = blocked
@@ -162,10 +174,40 @@ repp task is-blocked <task-id>
 ```
 
 #### List task IDs only
+
 ```sh
 repp task scan [plan-id]
   --status=X        # Filter by status
   --min-priority=X  # Filter by minimum priority
+```
+
+#### Set task priority
+
+```sh
+repp task prioritize [task-id] [priority]
+  # priority: 0-4 (0=critical, 4=lowest)
+  # Interactive selection if args omitted
+```
+
+#### Transition task to review
+
+```sh
+repp task review [task-id]
+  # Interactive selection if task-id omitted
+```
+
+#### Transition task to done
+
+```sh
+repp task complete [task-id]
+  # Interactive selection if task-id omitted
+```
+
+#### Add comment to task
+
+```sh
+repp task note [task-id] "comment"
+  # Interactive selection if task-id omitted
 ```
 
 ## Configuration
