@@ -1,3 +1,5 @@
+![repp](media/rpp-pill-lg.png)
+
 # Repo Plans `repp`
 
 File-based plan and task tracking that lives in your repository.
