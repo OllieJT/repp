@@ -30,7 +30,7 @@ jobs:
           title: "chore: version packages"
           commit: "chore: version packages"
           # Uncomment 'publish' to enable auto-publishing to npm
-          # publish: npm run release
+          publish: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
