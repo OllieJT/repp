@@ -44,6 +44,8 @@ repp::validate_priorities() {
 
     IFS=',' read -ra items <<< "$priorities"
     for item in "${items[@]}"; do
+        item="${item#"${item%%[![:space:]]*}"}"  # trim leading
+        item="${item%"${item##*[![:space:]]}"}"  # trim trailing
         repp::validate_priority "$item" || return $REPP_EXIT_ERROR
     done
 
@@ -56,6 +58,8 @@ repp::priority_in_list() {
 
     IFS=',' read -ra items <<< "$list"
     for item in "${items[@]}"; do
+        item="${item#"${item%%[![:space:]]*}"}"  # trim leading
+        item="${item%"${item##*[![:space:]]}"}"  # trim trailing
         [[ "$value" == "$item" ]] && return $REPP_EXIT_SUCCESS
     done
 
