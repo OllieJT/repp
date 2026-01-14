@@ -1,5 +1,13 @@
 # repp
 
+## 0.1.0
+
+### Minor Changes
+
+- [#15](https://github.com/OllieJT/repp/pull/15) [`1e9ccbd`](https://github.com/OllieJT/repp/commit/1e9ccbdff1ab278e9d3bb1a9708d25edf3a76e23) Thanks [@OllieJT](https://github.com/OllieJT)! - Add task mutation commands: prioritize, review, complete, note
+
+- [#17](https://github.com/OllieJT/repp/pull/17) [`28f3b08`](https://github.com/OllieJT/repp/commit/28f3b08cd76e6ac228ff568aec03b0d85327fcc7) Thanks [@OllieJT](https://github.com/OllieJT)! - Replace `--min-priority` with `--priority` for exact matching. Accept comma-separated values (e.g., `--priority=1,2,3`) and support any alphanumeric priority format (1, 01, P1, high, etc.).
+
 ## 0.0.2
 
 ### Patch Changes
