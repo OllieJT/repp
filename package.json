@@ -1,6 +1,6 @@
 {
   "name": "repp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "File-based plan and task management that lives in git.",
   "author": "OllieJT",
   "license": "ISC",

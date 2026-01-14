@@ -1,5 +1,11 @@
 # repp
 
+## 0.0.2
+
+### Patch Changes
+
+- [#13](https://github.com/OllieJT/repp/pull/13) [`ad443b3`](https://github.com/OllieJT/repp/commit/ad443b3fb66fa6bdf11140f4e2e2398e682e2d12) Thanks [@OllieJT](https://github.com/OllieJT)! - Fix package.json config for npm
+
 ## 0.0.1
 
 ### Patch Changes
