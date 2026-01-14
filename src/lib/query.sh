@@ -38,7 +38,7 @@ repp::list_plans() {
     for arg in "$@"; do
         case "$arg" in
             --status=*) filter_status="${arg#*=}" ;;
-            --min-priority=*) filter_priority="${arg#*=}" ;;
+            --priority=*) filter_priority="${arg#*=}" ;;
         esac
     done
 
@@ -46,7 +46,7 @@ repp::list_plans() {
         repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
     fi
     if [[ -n "$filter_priority" ]]; then
-        repp::validate_priority "$filter_priority" || return $REPP_EXIT_ERROR
+        repp::validate_priorities "$filter_priority" || return $REPP_EXIT_ERROR
     fi
 
     local root
@@ -65,7 +65,7 @@ repp::list_plans() {
         priority=$(yq '.priority' "$f")
 
         [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
-        [[ -n "$filter_priority" && "$priority" -gt "$filter_priority" ]] && continue
+        [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
 
         [[ $found -gt 0 ]] && echo "---"
         echo "id: $id"
@@ -125,7 +125,7 @@ repp::list_tasks() {
     for arg in "$@"; do
         case "$arg" in
             --status=*) filter_status="${arg#*=}" ;;
-            --min-priority=*) filter_priority="${arg#*=}" ;;
+            --priority=*) filter_priority="${arg#*=}" ;;
         esac
     done
 
@@ -133,7 +133,7 @@ repp::list_tasks() {
         repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
     fi
     if [[ -n "$filter_priority" ]]; then
-        repp::validate_priority "$filter_priority" || return $REPP_EXIT_ERROR
+        repp::validate_priorities "$filter_priority" || return $REPP_EXIT_ERROR
     fi
 
     local root
@@ -160,7 +160,7 @@ repp::list_tasks() {
         priority=$(yq '.priority' "$f")
 
         [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
-        [[ -n "$filter_priority" && "$priority" -gt "$filter_priority" ]] && continue
+        [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
 
         [[ $found -gt 0 ]] && echo "---"
         echo "id: $id"
@@ -179,7 +179,7 @@ repp::scan_plans() {
     for arg in "$@"; do
         case "$arg" in
             --status=*) filter_status="${arg#*=}" ;;
-            --min-priority=*) filter_priority="${arg#*=}" ;;
+            --priority=*) filter_priority="${arg#*=}" ;;
         esac
     done
 
@@ -187,7 +187,7 @@ repp::scan_plans() {
         repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
     fi
     if [[ -n "$filter_priority" ]]; then
-        repp::validate_priority "$filter_priority" || return $REPP_EXIT_ERROR
+        repp::validate_priorities "$filter_priority" || return $REPP_EXIT_ERROR
     fi
 
     local root
@@ -206,7 +206,7 @@ repp::scan_plans() {
         priority=$(yq '.priority' "$f")
 
         [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
-        [[ -n "$filter_priority" && "$priority" -gt "$filter_priority" ]] && continue
+        [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
 
         echo "$id"
         ((found++)) || true
@@ -230,7 +230,7 @@ repp::scan_tasks() {
     for arg in "$@"; do
         case "$arg" in
             --status=*) filter_status="${arg#*=}" ;;
-            --min-priority=*) filter_priority="${arg#*=}" ;;
+            --priority=*) filter_priority="${arg#*=}" ;;
         esac
     done
 
@@ -238,7 +238,7 @@ repp::scan_tasks() {
         repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
     fi
     if [[ -n "$filter_priority" ]]; then
-        repp::validate_priority "$filter_priority" || return $REPP_EXIT_ERROR
+        repp::validate_priorities "$filter_priority" || return $REPP_EXIT_ERROR
     fi
 
     local root
@@ -265,7 +265,7 @@ repp::scan_tasks() {
         priority=$(yq '.priority' "$f")
 
         [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
-        [[ -n "$filter_priority" && "$priority" -gt "$filter_priority" ]] && continue
+        [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
 
         echo "$id"
         ((found++)) || true

@@ -26,10 +26,42 @@ repp::validate_priority() {
         return $REPP_EXIT_ERROR
     fi
 
-    if ! [[ "$priority" =~ ^[0-4]$ ]]; then
-        repp::log::error "invalid priority '$priority'. Valid: 0-4"
+    if ! [[ "$priority" =~ ^[a-zA-Z0-9]+$ ]]; then
+        repp::log::error "invalid priority '$priority'. Must be alphanumeric"
         return $REPP_EXIT_ERROR
     fi
 
     return $REPP_EXIT_SUCCESS
+}
+
+repp::validate_priorities() {
+    local priorities="$1"
+
+    if [[ -z "$priorities" ]]; then
+        repp::log::error "priorities required"
+        return $REPP_EXIT_ERROR
+    fi
+
+    IFS=',' read -ra items <<< "$priorities"
+    for item in "${items[@]}"; do
+        item="${item#"${item%%[![:space:]]*}"}"  # trim leading
+        item="${item%"${item##*[![:space:]]}"}"  # trim trailing
+        repp::validate_priority "$item" || return $REPP_EXIT_ERROR
+    done
+
+    return $REPP_EXIT_SUCCESS
+}
+
+repp::priority_in_list() {
+    local value="$1"
+    local list="$2"
+
+    IFS=',' read -ra items <<< "$list"
+    for item in "${items[@]}"; do
+        item="${item#"${item%%[![:space:]]*}"}"  # trim leading
+        item="${item%"${item##*[![:space:]]}"}"  # trim trailing
+        [[ "$value" == "$item" ]] && return $REPP_EXIT_SUCCESS
+    done
+
+    return $REPP_EXIT_ERROR
 }

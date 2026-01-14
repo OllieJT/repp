@@ -45,7 +45,7 @@ Actions:
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
-  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+  --priority=X,Y,... Filter by priority (exact match, comma-separated)
 
 Examples:
   repp plan list --status=in_progress
@@ -71,7 +71,7 @@ Actions:
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
-  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+  --priority=X,Y,... Filter by priority (exact match, comma-separated)
 
 Examples:
   repp task list my-plan --status=backlog
@@ -93,12 +93,12 @@ List all plans with optional filtering.
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
-  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+  --priority=X,Y,... Filter by priority (exact match, comma-separated)
 
 Examples:
   repp plan list
   repp plan list --status=in_progress
-  repp plan list --min-priority=2
+  repp plan list --priority=1,2
 EOF
 }
 
@@ -123,7 +123,7 @@ List plan IDs only (no file contents).
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
-  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+  --priority=X,Y,... Filter by priority (exact match, comma-separated)
 
 Examples:
   repp plan scan
@@ -140,12 +140,12 @@ an interactive selector will be shown.
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
-  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+  --priority=X,Y,... Filter by priority (exact match, comma-separated)
 
 Examples:
   repp task list my-plan
   repp task list my-plan --status=backlog
-  repp task list --min-priority=1
+  repp task list --priority=1,2
 EOF
 }
 
@@ -202,7 +202,7 @@ List task IDs only (no file contents).
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
-  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+  --priority=X,Y,... Filter by priority (exact match, comma-separated)
 
 Examples:
   repp task scan my-plan
@@ -217,10 +217,11 @@ Usage: repp task prioritize [task-id] [priority]
 Set task priority. If no task-id is provided, an interactive
 selector will be shown.
 
-Priority: 0-4 (0=critical, 4=lowest)
+Priority: Any alphanumeric value (e.g., 1, 01, P1, high)
 
 Examples:
   repp task prioritize my-plan/my-task 1
+  repp task prioritize my-plan/my-task P1
   repp task prioritize
 EOF
 }

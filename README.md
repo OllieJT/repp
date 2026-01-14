@@ -44,9 +44,9 @@ Everything versions together. Branch the code, branch the work tracking.
 ### PLAN.yml
 
 ```yaml
-priority: number # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
-description: string # What this plan is for
-status: string # backlog | in_progress | done
+priority: string     # Any value (e.g., P1, P2, P3)
+description: string  # What this plan is for
+status: string       # backlog | in_progress | done
 ```
 
 **Lifecycle:** `backlog → in_progress → done`
@@ -62,9 +62,9 @@ status: in_progress
 ### TASK.yml
 
 ```yaml
-priority: number # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
-description: string # What this task accomplishes
-status: string # backlog | in_progress | review | done
+priority: string     # Any value (e.g., P1, P2, P3)
+description: string  # What this task accomplishes
+status: string       # backlog | in_progress | review | done
 
 blocked_by: # Optional: Task IDs that must complete first
   - plan-slug/task-slug
@@ -122,7 +122,7 @@ There is no expected structure for spec files.
 ```sh
 repp plan list
   --status=X        # Filter by status (backlog|in_progress|done)
-  --min-priority=X  # Filter by minimum priority (0-4)
+  --priority=X,Y    # Filter by priority (exact match)
 ```
 
 #### Get plan details
@@ -137,7 +137,7 @@ repp plan get [plan-id]
 ```sh
 repp plan scan
   --status=X        # Filter by status
-  --min-priority=X  # Filter by minimum priority
+  --priority=X,Y    # Filter by priority (exact match)
 ```
 
 ### Task Commands
@@ -147,7 +147,7 @@ repp plan scan
 ```sh
 repp task list [plan-id]
   --status=X        # Filter by status (backlog|in_progress|review|done)
-  --min-priority=X  # Filter by minimum priority (0-4)
+  --priority=X,Y    # Filter by priority (exact match)
 ```
 
 #### Get task details
@@ -178,15 +178,15 @@ repp task is-blocked <task-id>
 ```sh
 repp task scan [plan-id]
   --status=X        # Filter by status
-  --min-priority=X  # Filter by minimum priority
+  --priority=X,Y    # Filter by priority (exact match)
 ```
 
 #### Set task priority
 
 ```sh
 repp task prioritize [task-id] [priority]
-  # priority: 0-4 (0=critical, 4=lowest)
-  # Interactive selection if args omitted
+  # priority: any alphanumeric (e.g., 1, P1, high)
+  # Interactive input if args omitted
 ```
 
 #### Transition task to review
@@ -217,6 +217,9 @@ Create `.repprc` in project root:
 ```bash
 # Path to your plans folder, relative to this file.
 REPP_ROOT="path/to/plans"
+
+# Optional: Custom priority values for interactive selection (default: P0,P1,P2,P3,P4)
+REPP_PRIORITIES="critical,high,medium,low"
 ```
 
 ## Dependencies
