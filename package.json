@@ -6,7 +6,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OllieJT/repp.git"
+    "url": "git+https://github.com/OllieJT/repp.git"
   },
   "homepage": "https://github.com/OllieJT/repp",
   "bugs": {
@@ -16,7 +16,7 @@
     "node": ">=24"
   },
   "bin": {
-    "repp": "./src/repp"
+    "repp": "src/repp"
   },
   "files": [
     "src/"

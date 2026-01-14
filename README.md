@@ -16,7 +16,7 @@ File-based plan and task tracking that lives in your repository.
 
 **Not a replacement for team alignment tools.** Keep using whatever works for coordination and reporting.
 
-**Not a framework.** Primitives your team already knows (YAML, Markdown, Bash). Opinionated enough to be useful, flexible enough to extend.
+**Not a product.** Primitives your team already knows (YAML, Markdown, Bash). Opinionated enough to be useful, flexible enough to extend.
 
 ## Solution
 
