@@ -1,14 +1,20 @@
 # Repo Plans `repp`
 
-File-based plan and task tracking that lives in git.
+File-based plan and task tracking that lives in your repository.
 
-## Problem
+## What It Is
 
-**Context loss.** External tools (Jira, Linear, Notion) store work tracking outside the codebase. When you switch branches, your issue tracker doesn't follow. When you review a PR, the task context lives somewhere else.
+**Task documentation that lives with code.** Plans and specs version-controlled alongside the code they describe. Branch the code, branch the context.
 
-**AI agents need structure.** Autonomous development loops need to read task requirements, update status, and commit changes—all programmatically. External APIs add latency, auth complexity, and failure modes.
+**Structured for AI agents.** Agents read requirements, update status, and commit changes—all without external APIs. Detailed plans reduce context window bloat and maintain output quality.
 
-**Version control mismatch.** Traditional issue trackers don't branch, merge, or diff. You can't review task changes alongside code changes.
+**Code as source of truth.** Your repo reflects what the app *is* and what needs to be *done*. Task state branches, merges, and diffs with the code.
+
+## What It Is Not
+
+**Not a replacement for team alignment tools.** Keep using whatever works for coordination and reporting.
+
+**Not a framework.** Primitives your team already knows (YAML, Markdown, Bash). Opinionated enough to be useful, flexible enough to extend.
 
 ## Solution
 
@@ -27,7 +33,7 @@ Everything versions together. Branch the code, branch the work tracking.
 |-----------|---------------|
 | Version controlled | All progress lives in git—branch, merge, review like code |
 | Conflict-friendly | YAML line-based format resolves merge conflicts cleanly |
-| Shell-native | Query with `grep`, `find`, `cat`—no special tooling required |
+| Shell-native | Data readable with `grep`, `find`, `cat`—no lock-in |
 | Scales complexity | Simple tasks need one YAML file; complex ones add specs |
 | Zero dependencies | Works anywhere git works |
 
@@ -36,9 +42,8 @@ Everything versions together. Branch the code, branch the work tracking.
 ### PLAN.yml
 
 ```yaml
-# Required
-priority: number     # 0 (critical) | 1 | 2 | 3 | 4 (lowest)
-description: string  # Why this plan matters
+priority: number     # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
+description: string  # What this plan is for
 status: string       # backlog | in_progress | done
 ```
 
@@ -54,16 +59,14 @@ status: in_progress
 ### TASK.yml
 
 ```yaml
-# Required
-priority: number     # 0 (critical) | 1 | 2 | 3 | 4 (lowest)
+priority: number     # (critical) 0 | 1 | 2 | 3 | 4 (lowest)
 description: string  # What this task accomplishes
 status: string       # backlog | in_progress | review | done
 
-# Optional
-blocked_by:          # Task IDs that must complete first
+blocked_by:          # Optional: Task IDs that must complete first
   - plan-slug/task-slug
-comments:            # Append-only timestamped notes
-  - "2024-01-15: Started investigation"
+comments:            # Optional: Append notes to improve contextual awareness
+  - string
 ```
 
 **Lifecycle:** `backlog → in_progress → review ⇄ in_progress | done`
@@ -72,67 +75,95 @@ comments:            # Append-only timestamped notes
 ```yaml
 priority: 2
 description: Configure OAuth providers
-status: backlog
+status: review
 blocked_by:
   - auth-system/setup-database
+comments:
+  - "Implemented Google Oauth"
+  - "Implemented GitHub Oauth"
+  - "Updated ./SPEC.md"
 ```
 
 ### SPEC.md
 
 Optional markdown file for detailed task specifications.
 
-**Requirements:** filename must be `SPEC.md`, format must be markdown. No enforced structure.
+**Requirements:** filename must be `SPEC.md`, format must be markdown.
+
+There is no expected structure for spec files.
+
+**Example:**
+```md
+assignee: Agent
+---
+# Requirements
+- [x] Update our BetterAuth configuration to use Oauth.
+- [x] Add Google as an Oauth Provider
+- [x] Add GitHub as an Oauth Provider
+- [ ] Add Apple as an Oauth Provider
+
+## Guidelines
+...
+```
 
 ## Commands
 
 ### Plan Commands
 
-**`repp plan list`** — List all plans
-```
---status=X        Filter by status (backlog|in_progress|done)
---min-priority=X  Filter by minimum priority (0-4)
-```
-
-**`repp plan get [plan-id]`** — Get plan details
-```
-Interactive selection if plan-id omitted
+#### List all plans
+```sh
+repp plan list
+  --status=X        # Filter by status (backlog|in_progress|done)
+  --min-priority=X  # Filter by minimum priority (0-4)
 ```
 
-**`repp plan scan`** — List plan IDs only
+#### Get plan details
+```sh
+repp plan get [plan-id]
+  # Interactive selection if plan-id omitted
 ```
---status=X        Filter by status
---min-priority=X  Filter by minimum priority
+
+#### List plan IDs only
+```sh
+repp plan scan
+  --status=X        # Filter by status
+  --min-priority=X  # Filter by minimum priority
 ```
 
 ### Task Commands
 
-**`repp task list [plan-id]`** — List tasks in a plan
-```
---status=X        Filter by status (backlog|in_progress|review|done)
---min-priority=X  Filter by minimum priority (0-4)
-```
-
-**`repp task get [task-id]`** — Get task details
-```
-task-id format: plan-id/task-slug
-Interactive selection if task-id omitted
+#### List tasks in a plan
+```sh
+repp task list [plan-id]
+  --status=X        # Filter by status (backlog|in_progress|review|done)
+  --min-priority=X  # Filter by minimum priority (0-4)
 ```
 
-**`repp task get-spec [task-id]`** — Get task specification
-```
-Interactive selection if task-id omitted
-```
-
-**`repp task is-blocked <task-id>`** — Check if task is blocked
-```
-Exit 0 = blocked
-Exit 1 = not blocked
+#### Get task details
+```sh
+repp task get [task-id]
+  # task-id format: plan-id/task-slug
+  # Interactive selection if task-id omitted
 ```
 
-**`repp task scan [plan-id]`** — List task IDs only
+#### Get task specification
+```sh
+repp task get-spec [task-id]
+  # Interactive selection if task-id omitted
 ```
---status=X        Filter by status
---min-priority=X  Filter by minimum priority
+
+#### Check if task is blocked
+```sh
+repp task is-blocked <task-id>
+  # Exit 0 = blocked
+  # Exit 1 = not blocked
+```
+
+#### List task IDs only
+```sh
+repp task scan [plan-id]
+  --status=X        # Filter by status
+  --min-priority=X  # Filter by minimum priority
 ```
 
 ## Configuration
@@ -140,10 +171,11 @@ Exit 1 = not blocked
 Create `.repprc` in project root:
 
 ```bash
+# Path to your plans folder, relative to this file.
 REPP_ROOT="path/to/plans"
 ```
 
 ## Dependencies
 
-- **Required:** [yq](https://github.com/mikefarah/yq) (Mike Farah version)
-- **Optional:** [gum](https://github.com/charmbracelet/gum) (interactive selection, styled output)
+- [yq](https://github.com/mikefarah/yq) (Mike Farah version)
+- [gum](https://github.com/charmbracelet/gum) (interactive selection, styled output)
