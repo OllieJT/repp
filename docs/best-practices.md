@@ -1,10 +1,12 @@
 # Best Practices
 
+This doc is mostly notes about how I use Repp in my own projects. More examples and docs coming soon!
+
 ## Git Integration
 
 ### Branch Naming
 
-Plans map to feature branches:
+Plans map to branches:
 
 ```
 plan/auth-system
