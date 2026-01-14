@@ -185,8 +185,8 @@ repp task scan [plan-id]
 
 ```sh
 repp task prioritize [task-id] [priority]
-  # priority: 0-4 (0=critical, 4=lowest)
-  # Interactive selection if args omitted
+  # priority: any alphanumeric (e.g., 1, P1, high)
+  # Interactive input if args omitted
 ```
 
 #### Transition task to review

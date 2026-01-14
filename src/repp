@@ -217,10 +217,11 @@ Usage: repp task prioritize [task-id] [priority]
 Set task priority. If no task-id is provided, an interactive
 selector will be shown.
 
-Priority: 0-4 (0=critical, 4=lowest)
+Priority: Any alphanumeric value (e.g., 1, 01, P1, high)
 
 Examples:
   repp task prioritize my-plan/my-task 1
+  repp task prioritize my-plan/my-task P1
   repp task prioritize
 EOF
 }

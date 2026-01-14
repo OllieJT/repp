@@ -97,11 +97,7 @@ repp::cmd::task::prioritize() {
     for arg in "$@"; do
         case "$arg" in
             */*) task_id="$arg" ;;
-            [0-4]) priority="$arg" ;;
-            *)
-                repp::log::error "unrecognized argument '$arg'"
-                return $REPP_EXIT_ERROR
-                ;;
+            *) priority="$arg" ;;
         esac
     done
 
@@ -111,7 +107,7 @@ repp::cmd::task::prioritize() {
 
     if [[ -z "$priority" ]]; then
         if command -v gum &>/dev/null; then
-            priority=$(gum choose --header "Select priority" 0 1 2 3 4) || return $REPP_EXIT_ERROR
+            priority=$(gum input --header "Enter priority" --placeholder "e.g., 1, P1, high") || return $REPP_EXIT_ERROR
         else
             repp::log::error "priority required"
             return $REPP_EXIT_ERROR
