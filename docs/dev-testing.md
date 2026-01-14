@@ -7,13 +7,13 @@ Bash scripts have no build step—changes take effect immediately. No hot reload
 Run the CLI directly:
 
 ```bash
-./src/bws project list
+./src/repp plan list
 ```
 
 Or from anywhere in the repo:
 
 ```bash
-./src/bws task get
+./src/repp task get
 ```
 
 ## Setup (One Time)
@@ -21,13 +21,13 @@ Or from anywhere in the repo:
 Ensure the entry point is executable:
 
 ```bash
-chmod +x ./src/bws
+chmod +x ./src/repp
 ```
 
 ## Development Workflow
 
 1. Edit any file in `src/`
-2. Run `./src/bws <command>` to test
+2. Run `./src/repp <command>` to test
 3. Repeat
 
 That's it. Changes apply instantly.
@@ -38,13 +38,13 @@ For convenience, add the src directory to your PATH in your shell config:
 
 ```bash
 # In ~/.bashrc or ~/.zshrc
-export PATH="$PATH:/path/to/branch-work/src"
+export PATH="$PATH:/path/to/repo-plans/src"
 ```
 
 Then run from anywhere:
 
 ```bash
-bws project list
+repp plan list
 ```
 
 ## Debugging
@@ -62,13 +62,13 @@ Use `>&2` to print to stderr (won't interfere with piped output).
 Run with `-x` to see each command as it executes:
 
 ```bash
-bash -x ./src/bws project list
+bash -x ./src/repp plan list
 ```
 
 ### Check syntax without running
 
 ```bash
-bash -n ./src/bws
+bash -n ./src/repp
 ```
 
 ## Dependencies
@@ -98,13 +98,13 @@ Source a library file and call functions directly:
 
 ```bash
 source ./src/lib/query.sh
-bws::list_projects
+repp::list_plans
 ```
 
 ## Common Issues
 
-**Permission denied**: Run `chmod +x ./src/bws`
+**Permission denied**: Run `chmod +x ./src/repp`
 
 **Command not found (yq/gum)**: Install dependencies (see above)
 
-**Syntax errors**: Run `bash -n ./src/bws` to check syntax
+**Syntax errors**: Run `bash -n ./src/repp` to check syntax

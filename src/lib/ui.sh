@@ -3,47 +3,47 @@
 
 source "$(dirname "${BASH_SOURCE[0]}")/query.sh"
 
-bws::ui::select_project() {
+repp::ui::select_plan() {
     local items
-    items=$(bws::scan_projects "$@") || return $BWS_EXIT_ERROR
+    items=$(repp::scan_plans "$@") || return $REPP_EXIT_ERROR
 
     if [[ -z "$items" ]]; then
-        bws::log::error "no projects found"
-        return $BWS_EXIT_ERROR
+        repp::log::error "no plans found"
+        return $REPP_EXIT_ERROR
     fi
 
-    gum filter --header "Select project" <<< "$items"
+    gum filter --header "Select plan" <<< "$items"
 }
 
-bws::ui::select_task() {
-    local project_id="$1"
+repp::ui::select_task() {
+    local plan_id="$1"
     shift || true
 
-    if [[ -z "$project_id" ]]; then
-        project_id=$(bws::ui::select_project) || return $BWS_EXIT_ERROR
+    if [[ -z "$plan_id" ]]; then
+        plan_id=$(repp::ui::select_plan) || return $REPP_EXIT_ERROR
     fi
 
     local items
-    items=$(bws::scan_tasks "$project_id" "$@") || return $BWS_EXIT_ERROR
+    items=$(repp::scan_tasks "$plan_id" "$@") || return $REPP_EXIT_ERROR
 
     if [[ -z "$items" ]]; then
-        bws::log::error "no tasks found"
-        return $BWS_EXIT_ERROR
+        repp::log::error "no tasks found"
+        return $REPP_EXIT_ERROR
     fi
 
     gum filter --header "Select task" <<< "$items"
 }
 
-bws::ui::display_yaml() {
+repp::ui::display_yaml() {
     local input
     input=$(cat)
 
-    [[ -z "$input" ]] && return $BWS_EXIT_SUCCESS
+    [[ -z "$input" ]] && return $REPP_EXIT_SUCCESS
 
     if command -v gum &>/dev/null; then
         echo "$input" | gum format -t code
     else
         echo "$input"
     fi
-    return $BWS_EXIT_SUCCESS
+    return $REPP_EXIT_SUCCESS
 }

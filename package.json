@@ -1,12 +1,22 @@
 {
-  "name": "branch-work",
+  "name": "repp",
   "version": "0.0.0",
-  "description": "File-based project and task management that lives in git.",
+  "description": "File-based plan and task management that lives in git.",
+  "author": "OllieJT",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OllieJT/repp.git"
+  },
+  "homepage": "https://github.com/OllieJT/repp",
+  "bugs": {
+    "url": "https://github.com/OllieJT/repp/issues"
+  },
   "engines": {
     "node": ">=24"
   },
   "bin": {
-    "bws": "./src/bws"
+    "repp": "./src/repp"
   },
   "files": [
     "src/"
@@ -14,16 +24,11 @@
   "keywords": [
     "cli",
     "task-management",
-    "project-management",
-    "ralph",
-    "context management",
+    "plan-management",
+    "ralph-wiggum",
+    "context-management",
     "productivity"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/OllieJT/branch-work.git"
-  },
-  "license": "ISC",
   "scripts": {
     "changeset": "changeset",
     "version": "changeset version",

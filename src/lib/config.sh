@@ -1,51 +1,51 @@
 #!/usr/bin/env bash
 # Config file loading
 
-_BWS_CONFIG_FILE=""
-BWS_ROOT=""
+_REPP_CONFIG_FILE=""
+REPP_ROOT=""
 
-bws::load_config() {
+repp::load_config() {
     local config_paths=(
-        "$PWD/.bwsrc"
-        "$(git rev-parse --show-toplevel 2>/dev/null)/.bwsrc"
+        "$PWD/.repprc"
+        "$(git rev-parse --show-toplevel 2>/dev/null)/.repprc"
     )
 
     # Add script's git root if available
-    if [[ -n "${_BWS_SCRIPT_DIR:-}" ]]; then
+    if [[ -n "${_REPP_SCRIPT_DIR:-}" ]]; then
         local script_git_root
-        script_git_root="$(cd "$_BWS_SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null)"
-        [[ -n "$script_git_root" ]] && config_paths+=("$script_git_root/.bwsrc")
+        script_git_root="$(cd "$_REPP_SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null)"
+        [[ -n "$script_git_root" ]] && config_paths+=("$script_git_root/.repprc")
     fi
 
-    config_paths+=("$HOME/.config/bws/config")
+    config_paths+=("$HOME/.config/repp/config")
 
     for path in "${config_paths[@]}"; do
-        [[ -z "$path" || "$path" == "/.bwsrc" ]] && continue
+        [[ -z "$path" || "$path" == "/.repprc" ]] && continue
         if [[ -f "$path" ]]; then
             if ! source "$path" 2>/dev/null; then
-                bws::log::error "failed to source config '$path'"
-                return $BWS_EXIT_ERROR
+                repp::log::error "failed to source config '$path'"
+                return $REPP_EXIT_ERROR
             fi
-            _BWS_CONFIG_FILE="$path"
-            return $BWS_EXIT_SUCCESS
+            _REPP_CONFIG_FILE="$path"
+            return $REPP_EXIT_SUCCESS
         fi
     done
 
-    bws::log::error "no config file found. Create .bwsrc with BWS_ROOT=\"path/to/projects\""
-    return $BWS_EXIT_ERROR
+    repp::log::error "no config file found. Create .repprc with REPP_ROOT=\"path/to/plans\""
+    return $REPP_EXIT_ERROR
 }
 
-bws::get_root() {
-    [[ -z "$_BWS_CONFIG_FILE" ]] && { bws::load_config || return $BWS_EXIT_ERROR; }
+repp::get_root() {
+    [[ -z "$_REPP_CONFIG_FILE" ]] && { repp::load_config || return $REPP_EXIT_ERROR; }
 
-    local root="${BWS_ROOT:-projects}"
+    local root="${REPP_ROOT:-plans}"
     local resolved
 
     if [[ "$root" == /* ]]; then
         resolved="$root"
     else
         local config_dir
-        config_dir="$(cd "$(dirname "$_BWS_CONFIG_FILE")" && pwd)"
+        config_dir="$(cd "$(dirname "$_REPP_CONFIG_FILE")" && pwd)"
         resolved="$config_dir/$root"
     fi
 
@@ -57,10 +57,10 @@ bws::get_root() {
     fi
 
     if [[ ! -d "$resolved" ]]; then
-        bws::log::error "BWS_ROOT directory not found: $resolved"
-        return $BWS_EXIT_ERROR
+        repp::log::error "REPP_ROOT directory not found: $resolved"
+        return $REPP_EXIT_ERROR
     fi
 
     echo "$resolved"
-    return $BWS_EXIT_SUCCESS
+    return $REPP_EXIT_SUCCESS
 }

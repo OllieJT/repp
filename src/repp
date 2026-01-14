@@ -1,0 +1,308 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Resolve script directory (exported for config.sh)
+export _REPP_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$_REPP_SCRIPT_DIR"
+
+repp::check_deps() {
+    local missing=()
+    command -v yq &>/dev/null || missing+=("yq")
+    command -v gum &>/dev/null || missing+=("gum (optional, for interactive selection)")
+
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        echo "Missing dependencies:" >&2
+        printf '  - %s\n' "${missing[@]}" >&2
+        [[ " ${missing[*]} " == *" yq "* ]] && return $REPP_EXIT_ERROR
+    fi
+    return $REPP_EXIT_SUCCESS
+}
+
+# Source libraries
+source "$SCRIPT_DIR/lib/exitcodes.sh"
+source "$SCRIPT_DIR/lib/log.sh"
+source "$SCRIPT_DIR/lib/config.sh"
+source "$SCRIPT_DIR/lib/query.sh"
+source "$SCRIPT_DIR/lib/validate.sh"
+source "$SCRIPT_DIR/lib/ui.sh"
+
+# Source command handlers
+source "$SCRIPT_DIR/commands/plan.sh"
+source "$SCRIPT_DIR/commands/task.sh"
+
+repp::check_deps || exit $REPP_EXIT_ERROR
+
+# Resource-level help functions
+repp::help::plan() {
+    cat <<EOF
+Usage: repp plan <action> [args] [flags]
+
+Actions:
+  list    List all plans
+  get     Get plan details
+  scan    List plan IDs only
+
+Flags:
+  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
+  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+
+Examples:
+  repp plan list --status=in_progress
+  repp plan get my-plan
+  repp plan scan
+EOF
+}
+
+repp::help::task() {
+    cat <<EOF
+Usage: repp task <action> [args] [flags]
+
+Actions:
+  list        List tasks in a plan
+  get         Get task details
+  get-spec    Get task specification (SPEC.md)
+  is-blocked  Check if task is blocked
+  scan        List task IDs only
+
+Flags:
+  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
+  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+
+Examples:
+  repp task list my-plan --status=backlog
+  repp task get my-plan/my-task
+  repp task get-spec my-plan/my-task
+  repp task is-blocked my-plan/my-task
+  repp task scan my-plan
+EOF
+}
+
+
+# Action-level help functions
+repp::help::plan::list() {
+    cat <<EOF
+Usage: repp plan list [flags]
+
+List all plans with optional filtering.
+
+Flags:
+  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
+  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+
+Examples:
+  repp plan list
+  repp plan list --status=in_progress
+  repp plan list --min-priority=2
+EOF
+}
+
+repp::help::plan::get() {
+    cat <<EOF
+Usage: repp plan get [plan-id]
+
+Get details for a specific plan. If no plan-id is provided,
+an interactive selector will be shown.
+
+Examples:
+  repp plan get my-plan
+  repp plan get
+EOF
+}
+
+repp::help::plan::scan() {
+    cat <<EOF
+Usage: repp plan scan [flags]
+
+List plan IDs only (no file contents).
+
+Flags:
+  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
+  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+
+Examples:
+  repp plan scan
+  repp plan scan --status=in_progress
+EOF
+}
+
+repp::help::task::list() {
+    cat <<EOF
+Usage: repp task list [plan-id] [flags]
+
+List tasks within a plan. If no plan-id is provided,
+an interactive selector will be shown.
+
+Flags:
+  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
+  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+
+Examples:
+  repp task list my-plan
+  repp task list my-plan --status=backlog
+  repp task list --min-priority=1
+EOF
+}
+
+repp::help::task::get() {
+    cat <<EOF
+Usage: repp task get [task-id]
+
+Get details for a specific task. If no task-id is provided,
+an interactive selector will be shown.
+
+Task ID format: plan-id/task-slug
+
+Examples:
+  repp task get my-plan/my-task
+  repp task get
+EOF
+}
+
+repp::help::task::get_spec() {
+    cat <<EOF
+Usage: repp task get-spec [task-id]
+
+Get the specification (SPEC.md) for a task. If no task-id is provided,
+an interactive selector will be shown.
+
+Task ID format: plan-id/task-slug
+
+Examples:
+  repp task get-spec my-plan/my-task
+  repp task get-spec
+EOF
+}
+
+repp::help::task::is_blocked() {
+    cat <<EOF
+Usage: repp task is-blocked <task-id>
+
+Check if a task is blocked by incomplete dependencies.
+
+Exit codes:
+  0 - Task is blocked
+  1 - Task is not blocked
+
+Examples:
+  repp task is-blocked my-plan/my-task
+EOF
+}
+
+repp::help::task::scan() {
+    cat <<EOF
+Usage: repp task scan [plan-id] [flags]
+
+List task IDs only (no file contents).
+
+Flags:
+  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
+  --min-priority=X   Filter by minimum priority (0-4, 0=critical)
+
+Examples:
+  repp task scan my-plan
+  repp task scan my-plan --status=backlog
+EOF
+}
+
+# Helper to check if args contain --help
+repp::has_help_flag() {
+    for arg in "$@"; do
+        case "$arg" in
+            --help|-h) return $REPP_EXIT_SUCCESS ;;
+        esac
+    done
+    return $REPP_EXIT_ERROR
+}
+
+repp::main() {
+    local resource="${1:-}"
+    local action="${2:-}"
+    shift 2 2>/dev/null || true
+
+    case "$resource" in
+        plan)
+            case "$action" in
+                --help|-h|"") repp::help::plan; return $REPP_EXIT_SUCCESS ;;
+                list)
+                    if repp::has_help_flag "$@"; then repp::help::plan::list; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::list "$@"; return $?; fi
+                    ;;
+                get)
+                    if repp::has_help_flag "$@"; then repp::help::plan::get; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::get "$@"; return $?; fi
+                    ;;
+                scan)
+                    if repp::has_help_flag "$@"; then repp::help::plan::scan; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::scan "$@"; return $?; fi
+                    ;;
+                *)
+                    echo "Unknown action: $action" >&2
+                    repp::help::plan
+                    return $REPP_EXIT_ERROR
+                    ;;
+            esac
+            ;;
+        task)
+            case "$action" in
+                --help|-h|"") repp::help::task; return $REPP_EXIT_SUCCESS ;;
+                list)
+                    if repp::has_help_flag "$@"; then repp::help::task::list; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::task::list "$@"; return $?; fi
+                    ;;
+                get)
+                    if repp::has_help_flag "$@"; then repp::help::task::get; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::task::get "$@"; return $?; fi
+                    ;;
+                get-spec)
+                    if repp::has_help_flag "$@"; then repp::help::task::get_spec; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::task::get_spec "$@"; return $?; fi
+                    ;;
+                is-blocked)
+                    if repp::has_help_flag "$@"; then repp::help::task::is_blocked; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::task::is_blocked "$@"; return $?; fi
+                    ;;
+                scan)
+                    if repp::has_help_flag "$@"; then repp::help::task::scan; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::task::scan "$@"; return $?; fi
+                    ;;
+                *)
+                    echo "Unknown action: $action" >&2
+                    repp::help::task
+                    return $REPP_EXIT_ERROR
+                    ;;
+            esac
+            ;;
+        --help|-h|"")
+            repp::usage
+            return $REPP_EXIT_SUCCESS
+            ;;
+        *)
+            echo "Unknown resource: $resource" >&2
+            repp::usage
+            return $REPP_EXIT_ERROR
+            ;;
+    esac
+}
+
+repp::usage() {
+    cat <<EOF
+Usage: repp <resource> <action> [args]
+
+Resources:
+  plan
+    list          List plans
+    get           Get plan details
+    scan          List plan IDs only
+
+  task
+    list          List tasks in a plan
+    get           Get task details
+    get-spec      Get task specification
+    is-blocked    Check if task is blocked
+    scan          List task IDs only
+
+Run 'repp <resource> --help' for details.
+EOF
+}
+
+repp::main "$@"
