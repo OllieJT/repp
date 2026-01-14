@@ -1,4 +1,4 @@
-![repp](media/rpp-pill-shield.png) ![NPM Version](https://img.shields.io/npm/v/repp) ![GitHub License](https://img.shields.io/github/license/OllieJT/Repp) ![GitHub repo size](https://img.shields.io/github/repo-size/OllieJT/Repp)
+![repp](media/rpp-pill-shield.png) [![NPM Version](https://img.shields.io/npm/v/repp)](https://www.npmjs.com/package/repp) ![GitHub License](https://img.shields.io/github/license/OllieJT/Repp) [![Release](https://github.com/OllieJT/repp/actions/workflows/release.yml/badge.svg)](https://github.com/OllieJT/repp/actions/workflows/release.yml)
 
 # Repo Plans `repp`
 

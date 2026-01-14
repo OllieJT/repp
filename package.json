@@ -29,6 +29,9 @@
     "context-management",
     "productivity"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "changeset": "changeset",
     "version": "changeset version",
