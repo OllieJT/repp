@@ -89,3 +89,78 @@ repp::cmd::task::scan() {
     repp::scan_tasks "$plan_id" ${filters[@]+"${filters[@]}"}
     return $?
 }
+
+repp::cmd::task::prioritize() {
+    local task_id=""
+    local priority=""
+
+    for arg in "$@"; do
+        case "$arg" in
+            */*) task_id="$arg" ;;
+            [0-4]) priority="$arg" ;;
+            *)
+                repp::log::error "unrecognized argument '$arg'"
+                return $REPP_EXIT_ERROR
+                ;;
+        esac
+    done
+
+    if [[ -z "$task_id" ]]; then
+        task_id=$(repp::ui::select_task) || return $REPP_EXIT_ERROR
+    fi
+
+    if [[ -z "$priority" ]]; then
+        if command -v gum &>/dev/null; then
+            priority=$(gum choose --header "Select priority" 0 1 2 3 4) || return $REPP_EXIT_ERROR
+        else
+            repp::log::error "priority required"
+            return $REPP_EXIT_ERROR
+        fi
+    fi
+
+    repp::set_task_priority "$task_id" "$priority"
+    return $?
+}
+
+repp::cmd::task::review() {
+    local task_id="$1"
+
+    if [[ -z "$task_id" ]]; then
+        task_id=$(repp::ui::select_task) || return $REPP_EXIT_ERROR
+    fi
+
+    repp::set_task_status "$task_id" "review"
+    return $?
+}
+
+repp::cmd::task::complete() {
+    local task_id="$1"
+
+    if [[ -z "$task_id" ]]; then
+        task_id=$(repp::ui::select_task) || return $REPP_EXIT_ERROR
+    fi
+
+    repp::set_task_status "$task_id" "done"
+    return $?
+}
+
+repp::cmd::task::note() {
+    local task_id="$1"
+    local comment="$2"
+
+    if [[ -z "$task_id" ]]; then
+        task_id=$(repp::ui::select_task) || return $REPP_EXIT_ERROR
+    fi
+
+    if [[ -z "$comment" ]]; then
+        if command -v gum &>/dev/null; then
+            comment=$(gum input --header "Enter comment") || return $REPP_EXIT_ERROR
+        else
+            repp::log::error "comment required"
+            return $REPP_EXIT_ERROR
+        fi
+    fi
+
+    repp::add_task_comment "$task_id" "$comment"
+    return $?
+}

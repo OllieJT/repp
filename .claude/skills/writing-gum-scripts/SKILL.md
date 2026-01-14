@@ -8,6 +8,7 @@ description: Writes interactive shell scripts using GUM (Charm's glamorous shell
 GUM provides ready-to-use components for interactive shell scripts without writing Go code.
 
 ## Resources
+
 - [Commands](./references/commands.md)
 - [Examples](./references/examples.md)
 

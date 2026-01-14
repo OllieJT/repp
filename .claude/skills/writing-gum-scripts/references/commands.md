@@ -14,7 +14,6 @@
 - [`write`](#write): Prompt for long-form text
 - [`log`](#log): Log messages to output
 
-
 ## Input
 
 Prompt for input with a simple command.
@@ -24,8 +23,6 @@ gum input > answer.txt
 gum input --password > password.txt
 ```
 
-
-
 ## Write
 
 Prompt for some multi-line text (`ctrl+d` to complete text entry).
@@ -33,8 +30,6 @@ Prompt for some multi-line text (`ctrl+d` to complete text entry).
 ```bash
 gum write > story.txt
 ```
-
-
 
 ## Filter
 
@@ -46,8 +41,6 @@ echo Banana >> flavors.txt
 echo Cherry >> flavors.txt
 gum filter < flavors.txt > selection.txt
 ```
-
-
 
 Select multiple options with the `--limit` flag or `--no-limit` flag. Use `tab` or `ctrl+space` to select, `enter` to confirm.
 
@@ -74,8 +67,6 @@ cat songs.txt | gum choose --limit 5
 cat foods.txt | gum choose --no-limit --header "Grocery Shopping"
 ```
 
-
-
 ## Confirm
 
 Confirm whether to perform an action. Exits with code `0` (affirmative) or `1`
@@ -85,8 +76,6 @@ Confirm whether to perform an action. Exits with code `0` (affirmative) or `1`
 gum confirm && rm file.txt || echo "File not removed"
 ```
 
-
-
 ## File
 
 Prompt the user to select a file from the file tree.
@@ -95,8 +84,6 @@ Prompt the user to select a file from the file tree.
 $EDITOR $(gum file $HOME)
 ```
 
-
-
 ## Pager
 
 Scroll through a long document with line numbers and a fully customizable viewport.
@@ -104,8 +91,6 @@ Scroll through a long document with line numbers and a fully customizable viewpo
 ```bash
 gum pager < README.md
 ```
-
-
 
 ## Spin
 
@@ -118,8 +103,6 @@ To view or pipe the command's output, use the `--show-output` flag.
 gum spin --spinner dot --title "Buying Bubble Gum..." -- sleep 5
 ```
 
-
-
 Available spinner types include: `line`, `dot`, `minidot`, `jump`, `pulse`, `points`, `globe`, `moon`, `monkey`, `meter`, `hamburger`.
 
 ## Table
@@ -129,8 +112,6 @@ Select a row from some tabular data.
 ```bash
 gum table < flavors.csv | cut -d ',' -f 1
 ```
-
-
 
 ## Style
 
@@ -142,8 +123,6 @@ gum style \
 	--align center --width 50 --margin "1 2" --padding "2 4" \
 	'Bubble Gum (1¢)' 'So sweet and so fresh!'
 ```
-
-
 
 ## Join
 
@@ -163,8 +142,6 @@ I_LOVE=$(gum join "$I" "$LOVE")
 BUBBLE_GUM=$(gum join "$BUBBLE" "$GUM")
 gum join --align center --vertical "$I_LOVE" "$BUBBLE_GUM"
 ```
-
-
 
 ## Format
 
@@ -190,8 +167,6 @@ echo 'I :heart: Bubble Gum :candy:' | gum format -t emoji
 For more information on template helpers, see the [Termenv
 docs](https://github.com/muesli/termenv#template-helpers). For a full list of
 named emojis see the [GitHub API](https://api.github.com/emojis).
-
-
 
 ## Log
 

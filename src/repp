@@ -25,6 +25,7 @@ source "$SCRIPT_DIR/lib/config.sh"
 source "$SCRIPT_DIR/lib/query.sh"
 source "$SCRIPT_DIR/lib/validate.sh"
 source "$SCRIPT_DIR/lib/ui.sh"
+source "$SCRIPT_DIR/lib/mutate.sh"
 
 # Source command handlers
 source "$SCRIPT_DIR/commands/plan.sh"
@@ -63,6 +64,10 @@ Actions:
   get-spec    Get task specification (SPEC.md)
   is-blocked  Check if task is blocked
   scan        List task IDs only
+  prioritize  Set task priority
+  review      Transition task to review
+  complete    Transition task to done
+  note        Add comment to task
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
@@ -71,9 +76,10 @@ Flags:
 Examples:
   repp task list my-plan --status=backlog
   repp task get my-plan/my-task
-  repp task get-spec my-plan/my-task
-  repp task is-blocked my-plan/my-task
-  repp task scan my-plan
+  repp task prioritize my-plan/my-task 1
+  repp task review my-plan/my-task
+  repp task complete my-plan/my-task
+  repp task note my-plan/my-task "comment"
 EOF
 }
 
@@ -204,6 +210,60 @@ Examples:
 EOF
 }
 
+repp::help::task::prioritize() {
+    cat <<EOF
+Usage: repp task prioritize [task-id] [priority]
+
+Set task priority. If no task-id is provided, an interactive
+selector will be shown.
+
+Priority: 0-4 (0=critical, 4=lowest)
+
+Examples:
+  repp task prioritize my-plan/my-task 1
+  repp task prioritize
+EOF
+}
+
+repp::help::task::review() {
+    cat <<EOF
+Usage: repp task review [task-id]
+
+Transition task status to review. If no task-id is provided,
+an interactive selector will be shown.
+
+Examples:
+  repp task review my-plan/my-task
+  repp task review
+EOF
+}
+
+repp::help::task::complete() {
+    cat <<EOF
+Usage: repp task complete [task-id]
+
+Transition task status to done. If no task-id is provided,
+an interactive selector will be shown.
+
+Examples:
+  repp task complete my-plan/my-task
+  repp task complete
+EOF
+}
+
+repp::help::task::note() {
+    cat <<EOF
+Usage: repp task note [task-id] [comment]
+
+Add a comment to the task. If no task-id is provided,
+an interactive selector will be shown.
+
+Examples:
+  repp task note my-plan/my-task "Waiting on API team"
+  repp task note
+EOF
+}
+
 # Helper to check if args contain --help
 repp::has_help_flag() {
     for arg in "$@"; do
@@ -265,6 +325,22 @@ repp::main() {
                     if repp::has_help_flag "$@"; then repp::help::task::scan; return $REPP_EXIT_SUCCESS
                     else repp::cmd::task::scan "$@"; return $?; fi
                     ;;
+                prioritize)
+                    if repp::has_help_flag "$@"; then repp::help::task::prioritize; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::task::prioritize "$@"; return $?; fi
+                    ;;
+                review)
+                    if repp::has_help_flag "$@"; then repp::help::task::review; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::task::review "$@"; return $?; fi
+                    ;;
+                complete)
+                    if repp::has_help_flag "$@"; then repp::help::task::complete; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::task::complete "$@"; return $?; fi
+                    ;;
+                note)
+                    if repp::has_help_flag "$@"; then repp::help::task::note; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::task::note "$@"; return $?; fi
+                    ;;
                 *)
                     echo "Unknown action: $action" >&2
                     repp::help::task
@@ -300,6 +376,10 @@ Resources:
     get-spec      Get task specification
     is-blocked    Check if task is blocked
     scan          List task IDs only
+    prioritize    Set task priority
+    review        Transition task to review
+    complete      Transition task to done
+    note          Add comment to task
 
 Run 'repp <resource> --help' for details.
 EOF

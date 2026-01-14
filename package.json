@@ -35,10 +35,14 @@
   "scripts": {
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json,css,html}\""
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8"
+  },
+  "dependencies": {
+    "prettier": "^3.7.4"
   }
 }
