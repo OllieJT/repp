@@ -42,7 +42,7 @@ repp::set_task_priority() {
     local file
     file=$(repp::resolve_task_file "$id") || return $REPP_EXIT_ERROR
 
-    yq -yi ".priority = $priority" "$file"
+    yq -yi --arg p "$priority" '.priority = $p' "$file"
     return $REPP_EXIT_SUCCESS
 }
 
