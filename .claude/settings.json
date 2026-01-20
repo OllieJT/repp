@@ -1,10 +1,10 @@
 {
-  "alwaysThinkingEnabled": true,
-  "attribution": {
-    "commit": " Co-Authored-By: Claude <noreply@anthropic.com>",
-    "pr": ""
-  },
-  "outputStyle": "default",
-  "plansDirectory": "./plans",
-  "spinnerTipsEnabled": false
+	"alwaysThinkingEnabled": true,
+	"attribution": {
+		"commit": " Co-Authored-By: Claude <noreply@anthropic.com>",
+		"pr": ""
+	},
+	"outputStyle": "default",
+	"plansDirectory": "./plans",
+	"spinnerTipsEnabled": false
 }
