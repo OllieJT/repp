@@ -1,5 +1,31 @@
 # repp
 
+## 0.2.0
+
+### Minor Changes
+
+- [#23](https://github.com/OllieJT/repp/pull/23) [`8b3245d`](https://github.com/OllieJT/repp/commit/8b3245d5a2e87d9cd0aa77b2a9edaf334432b8a1) Thanks [@OllieJT](https://github.com/OllieJT)! - Add `repp init` command
+
+  Creates `plans/` directory and `settings.json` if they don't exist. Useful for setting up repp in a new repository.
+
+- [#22](https://github.com/OllieJT/repp/pull/22) [`dff8c35`](https://github.com/OllieJT/repp/commit/dff8c3517e6e598e229f3f9b895f3b6b5397e959) Thanks [@OllieJT](https://github.com/OllieJT)! - Migrate from YAML to Markdown with frontmatter
+
+  Plans now use `.md` files with YAML frontmatter instead of separate `.yml` files. Metadata and specification live in one file.
+
+- [#22](https://github.com/OllieJT/repp/pull/22) [`dff8c35`](https://github.com/OllieJT/repp/commit/dff8c3517e6e598e229f3f9b895f3b6b5397e959) Thanks [@OllieJT](https://github.com/OllieJT)! - Remove tasks—plans are now the only entity
+
+  Simplified data model by removing the separate task concept. Plans now serve both purposes, reducing complexity and cognitive overhead.
+
+### Patch Changes
+
+- [#22](https://github.com/OllieJT/repp/pull/22) [`dff8c35`](https://github.com/OllieJT/repp/commit/dff8c3517e6e598e229f3f9b895f3b6b5397e959) Thanks [@OllieJT](https://github.com/OllieJT)! - Move config to `plans/settings.json`
+
+  Settings now live alongside plans in `plans/settings.json` instead of `.repprc` at repo root. Added graceful handling for invalid plan frontmatter.
+
+- [#22](https://github.com/OllieJT/repp/pull/22) [`dff8c35`](https://github.com/OllieJT/repp/commit/dff8c3517e6e598e229f3f9b895f3b6b5397e959) Thanks [@OllieJT](https://github.com/OllieJT)! - Adds `config show` command to show the resolved settings being used by the CLI.
+
+- [#22](https://github.com/OllieJT/repp/pull/22) [`dff8c35`](https://github.com/OllieJT/repp/commit/dff8c3517e6e598e229f3f9b895f3b6b5397e959) Thanks [@OllieJT](https://github.com/OllieJT)! - Adds claude skill + subagent config
+
 ## 0.1.0
 
 ### Minor Changes
