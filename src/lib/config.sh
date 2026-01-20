@@ -24,25 +24,10 @@ repp::get_root() {
 repp::load_settings() {
     [[ "$_REPP_SETTINGS_LOADED" == true ]] && return $REPP_EXIT_SUCCESS
 
-    local git_root settings_file
-    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
-        repp::log::error "not in a git repository"
-        return $REPP_EXIT_ERROR
-    }
+    local resolved_json
+    resolved_json="$(repp::get_resolved_settings)" || return $REPP_EXIT_ERROR
 
-    settings_file="$git_root/plans/settings.json"
-
-    if [[ -f "$settings_file" ]]; then
-        local priorities_json
-        priorities_json="$(yq -oy '.priorities // ["P0","P1","P2","P3","P4"]' "$settings_file" 2>/dev/null)"
-        if [[ $? -eq 0 && -n "$priorities_json" ]]; then
-            mapfile -t REPP_PRIORITIES < <(echo "$priorities_json" | yq -oy '.[]' 2>/dev/null)
-        else
-            REPP_PRIORITIES=("P0" "P1" "P2" "P3" "P4")
-        fi
-    else
-        REPP_PRIORITIES=("P0" "P1" "P2" "P3" "P4")
-    fi
+    mapfile -t REPP_PRIORITIES < <(echo "$resolved_json" | yq -oy '.priorities[]' 2>/dev/null)
 
     _REPP_SETTINGS_LOADED=true
     return $REPP_EXIT_SUCCESS
@@ -51,4 +36,28 @@ repp::load_settings() {
 repp::get_priorities() {
     repp::load_settings || return $REPP_EXIT_ERROR
     printf '%s\n' "${REPP_PRIORITIES[@]}"
+}
+
+repp::get_resolved_settings() {
+    local git_root schema_file settings_file defaults_json merged_json
+
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+        repp::log::error "not in a git repository"
+        return $REPP_EXIT_ERROR
+    }
+
+    schema_file="$_REPP_SCRIPT_DIR/schema/settings.schema.json"
+    settings_file="$git_root/plans/settings.json"
+
+    # Extract defaults from schema
+    defaults_json="$(yq -oj '.properties | with_entries(.value = .value.default)' "$schema_file")"
+
+    # Merge: defaults * user config (user wins)
+    if [[ -f "$settings_file" ]]; then
+        merged_json="$(echo "$defaults_json" | yq -oj ". * load(\"$settings_file\")")"
+    else
+        merged_json="$defaults_json"
+    fi
+
+    echo "$merged_json"
 }

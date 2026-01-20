@@ -29,6 +29,7 @@ source "$SCRIPT_DIR/lib/mutate.sh"
 
 # Source command handlers
 source "$SCRIPT_DIR/commands/plan.sh"
+source "$SCRIPT_DIR/commands/config.sh"
 
 repp::check_deps || exit $REPP_EXIT_ERROR
 
@@ -188,6 +189,28 @@ Examples:
 EOF
 }
 
+repp::help::config() {
+    cat <<EOF
+Usage: repp config <action> [flags]
+
+Actions:
+  show        Show resolved settings
+
+Run 'repp config show --help' for details.
+EOF
+}
+
+repp::help::config::show() {
+    cat <<EOF
+Usage: repp config show
+
+Output resolved settings (defaults merged with user config).
+
+Examples:
+  repp config show
+EOF
+}
+
 # Helper to check if args contain --help
 repp::has_help_flag() {
     for arg in "$@"; do
@@ -250,6 +273,20 @@ repp::main() {
                     ;;
             esac
             ;;
+        config)
+            case "$action" in
+                --help|-h|"") repp::help::config; return $REPP_EXIT_SUCCESS ;;
+                show)
+                    if repp::has_help_flag "$@"; then repp::help::config::show; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::config::show "$@"; return $?; fi
+                    ;;
+                *)
+                    echo "Unknown action: $action" >&2
+                    repp::help::config
+                    return $REPP_EXIT_ERROR
+                    ;;
+            esac
+            ;;
         --help|-h|"")
             repp::usage
             return $REPP_EXIT_SUCCESS
@@ -278,7 +315,10 @@ Resources:
     is-blocked  Check if plan is blocked
     validate    Find invalid plans
 
-Run 'repp plan --help' for details.
+  config
+    show        Show resolved settings
+
+Run 'repp <resource> --help' for details.
 EOF
 }
 
