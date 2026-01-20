@@ -77,9 +77,9 @@ Optional markdown body for plan details.
 | ----------- | ------ | ------------------------------ |
 | priority    | string | Any value (e.g., P1, P2, P3)   |
 | description | string | What this plan is for          |
-| status      | string | backlog \| in_progress \| done |
+| status      | string | backlog \| discovery \| in_progress \| review \| done |
 
-**Lifecycle:** `backlog → in_progress → done`
+**Lifecycle:** `backlog → discovery → in_progress → review → done`
 
 ### TASK.md
 
@@ -113,98 +113,49 @@ Detailed task specification goes here.
 
 **Lifecycle:** `backlog → in_progress → review ⇄ in_progress | done`
 
-**Comments:** Appended to `## Comments` section in markdown body via `repp task note`.
+**Comments:** Appended to `## Comments` section in markdown body via `repp plan note`.
 
 ## Commands
 
 ### Plan Commands
 
-#### List all plans
-
 ```sh
 repp plan list
-  --status=X        # Filter by status (backlog|in_progress|done)
+  --status=X        # Filter by status (backlog|discovery|in_progress|review|done)
   --priority=X,Y    # Filter by priority (exact match)
-```
 
-#### Get plan details
-
-```sh
 repp plan get [plan-id]
   # Interactive selection if plan-id omitted
-```
 
-#### List plan IDs only
-
-```sh
 repp plan scan
   --status=X        # Filter by status
   --priority=X,Y    # Filter by priority (exact match)
-```
 
-### Task Commands
-
-#### List tasks in a plan
-
-```sh
-repp task list [plan-id]
-  --status=X        # Filter by status (backlog|in_progress|review|done)
-  --priority=X,Y    # Filter by priority (exact match)
-```
-
-#### Get task details
-
-```sh
-repp task get [task-id]
-  # task-id format: plan-id/task-slug
-  # Interactive selection if task-id omitted
-  # Shows full file: frontmatter + body
-```
-
-#### Check if task is blocked
-
-```sh
-repp task is-blocked <task-id>
-  # Exit 0 = blocked
-  # Exit 1 = not blocked
-```
-
-#### List task IDs only
-
-```sh
-repp task scan [plan-id]
-  --status=X        # Filter by status
-  --priority=X,Y    # Filter by priority (exact match)
-```
-
-#### Set task priority
-
-```sh
-repp task prioritize [task-id] [priority]
+repp plan prioritize [plan-id] [priority]
   # priority: any alphanumeric (e.g., 1, P1, high)
   # Interactive input if args omitted
+
+repp plan review [plan-id]
+  # Transition plan to review status
+
+repp plan complete [plan-id]
+  # Transition plan to done status
+
+repp plan note [plan-id] "comment"
+  # Appends to ## Comments section
+
+repp plan is-blocked <plan-id>
+  # Exit 0 = blocked, Exit 1 = not blocked
+
+repp plan validate
+  # Find plans with missing or invalid frontmatter
 ```
 
-#### Transition task to review
+### Config Commands
 
 ```sh
-repp task review [task-id]
-  # Interactive selection if task-id omitted
-```
-
-#### Transition task to done
-
-```sh
-repp task complete [task-id]
-  # Interactive selection if task-id omitted
-```
-
-#### Add comment to task
-
-```sh
-repp task note [task-id] "comment"
-  # Interactive selection if task-id omitted
-  # Appends to ## Comments section in markdown body
+repp config show
+  # Output resolved settings (defaults merged with user config)
 ```
 
 ## Configuration
