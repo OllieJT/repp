@@ -1,13 +1,13 @@
 {
-  "[markdown][json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "never",
-    "source.fixAll.prettier": "explicit",
-    "source.organizeImports": "explicit"
-  },
-  "editor.quickSuggestions": {
-    "strings": "on"
-  }
+	"[markdown][json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "never",
+		"source.fixAll.prettier": "explicit",
+		"source.organizeImports": "explicit"
+	},
+	"editor.quickSuggestions": {
+		"strings": "on"
+	}
 }

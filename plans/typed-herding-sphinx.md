@@ -7,10 +7,12 @@ description: Add graceful frontmatter validation and validate command
 # Plan: Frontmatter Validation
 
 ## Goals
+
 1. Skip invalid plans silently in `plan list`/`plan scan`
 2. Add `repp plan validate` to find invalid plans
 
 ## Required Fields
+
 - `status` - required
 - `description` - required
 - `priority` - optional
@@ -46,6 +48,7 @@ repp::md::validate_frontmatter() {
 ### 2. `src/lib/query.sh` - Update list/scan, add validate
 
 **list_plans()** - Add after `[[ -f "$f" ]] || continue`:
+
 ```bash
 repp::md::validate_frontmatter "$f" || continue
 ```
@@ -53,6 +56,7 @@ repp::md::validate_frontmatter "$f" || continue
 **scan_plans()** - Same change.
 
 **Add validate_plans()**:
+
 ```bash
 repp::validate_plans() {
     local root
@@ -101,6 +105,7 @@ validate)
 ```
 
 Add help function:
+
 ```bash
 repp::help::plan::validate() {
     echo "Usage: repp plan validate"
@@ -110,12 +115,14 @@ repp::help::plan::validate() {
 ```
 
 ## Files to Modify
+
 - `src/lib/markdown.sh` - add 2 functions
 - `src/lib/query.sh` - modify list_plans, scan_plans, add validate_plans
 - `src/commands/plan.sh` - add validate handler
 - `src/repp` - add routing + help
 
 ## Verification
+
 1. Create test file `plans/test-invalid.md` with no frontmatter
 2. Run `repp plan list` - should not show test-invalid
 3. Run `repp plan validate` - should report test-invalid as invalid
