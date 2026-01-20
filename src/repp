@@ -60,8 +60,7 @@ Usage: repp task <action> [args] [flags]
 
 Actions:
   list        List tasks in a plan
-  get         Get task details
-  get-spec    Get task specification (SPEC.md)
+  get         Get task details (frontmatter + body)
   is-blocked  Check if task is blocked
   scan        List task IDs only
   prioritize  Set task priority
@@ -161,21 +160,6 @@ Task ID format: plan-id/task-slug
 Examples:
   repp task get my-plan/my-task
   repp task get
-EOF
-}
-
-repp::help::task::get_spec() {
-    cat <<EOF
-Usage: repp task get-spec [task-id]
-
-Get the specification (SPEC.md) for a task. If no task-id is provided,
-an interactive selector will be shown.
-
-Task ID format: plan-id/task-slug
-
-Examples:
-  repp task get-spec my-plan/my-task
-  repp task get-spec
 EOF
 }
 
@@ -314,10 +298,6 @@ repp::main() {
                     if repp::has_help_flag "$@"; then repp::help::task::get; return $REPP_EXIT_SUCCESS
                     else repp::cmd::task::get "$@"; return $?; fi
                     ;;
-                get-spec)
-                    if repp::has_help_flag "$@"; then repp::help::task::get_spec; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::get_spec "$@"; return $?; fi
-                    ;;
                 is-blocked)
                     if repp::has_help_flag "$@"; then repp::help::task::is_blocked; return $REPP_EXIT_SUCCESS
                     else repp::cmd::task::is_blocked "$@"; return $?; fi
@@ -374,7 +354,6 @@ Resources:
   task
     list          List tasks in a plan
     get           Get task details
-    get-spec      Get task specification
     is-blocked    Check if task is blocked
     scan          List task IDs only
     prioritize    Set task priority

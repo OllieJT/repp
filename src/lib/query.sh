@@ -3,6 +3,7 @@
 
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/validate.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/markdown.sh"
 
 repp::get_plan() {
     local id="$1"
@@ -15,7 +16,7 @@ repp::get_plan() {
     local root
     root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local file="$root/$id/PLAN.yml"
+    local file="$root/$id/PLAN.md"
 
     if [[ ! -f "$file" ]]; then
         repp::log::info "plan '$id' not found"
@@ -23,9 +24,8 @@ repp::get_plan() {
     fi
 
     if command -v gum &>/dev/null; then
-        { echo "id: $id"; cat "$file"; } | gum format -t code
+        gum format < "$file"
     else
-        echo "id: $id"
         cat "$file"
     fi
     return $REPP_EXIT_SUCCESS
@@ -54,22 +54,22 @@ repp::list_plans() {
 
     local found=0
 
-    for f in "$root"/*/PLAN.yml; do
+    for f in "$root"/*/PLAN.md; do
         [[ -f "$f" ]] || continue
 
         local id
         id=$(basename "$(dirname "$f")")
         local status
-        status=$(yq '.status' "$f")
+        status=$(repp::md::get_value "$f" '.status')
         local priority
-        priority=$(yq '.priority' "$f")
+        priority=$(repp::md::get_value "$f" '.priority')
 
         [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
         [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
 
         [[ $found -gt 0 ]] && echo "---"
         echo "id: $id"
-        cat "$f"
+        repp::md::get_frontmatter "$f"
         ((found++)) || true
     done
 
@@ -95,7 +95,7 @@ repp::get_task() {
 
     local plan_id="${id%/*}"
     local task_slug="${id#*/}"
-    local file="$root/$plan_id/$task_slug/TASK.yml"
+    local file="$root/$plan_id/$task_slug/TASK.md"
 
     if [[ ! -f "$file" ]]; then
         repp::log::info "task '$id' not found"
@@ -103,9 +103,8 @@ repp::get_task() {
     fi
 
     if command -v gum &>/dev/null; then
-        { echo "id: $id"; cat "$file"; } | gum format -t code
+        gum format < "$file"
     else
-        echo "id: $id"
         cat "$file"
     fi
     return $REPP_EXIT_SUCCESS
@@ -148,23 +147,23 @@ repp::list_tasks() {
 
     local found=0
 
-    for f in "$plan_dir"/*/TASK.yml; do
+    for f in "$plan_dir"/*/TASK.md; do
         [[ -f "$f" ]] || continue
 
         local task_slug
         task_slug=$(basename "$(dirname "$f")")
         local id="$plan_id/$task_slug"
         local status
-        status=$(yq '.status' "$f")
+        status=$(repp::md::get_value "$f" '.status')
         local priority
-        priority=$(yq '.priority' "$f")
+        priority=$(repp::md::get_value "$f" '.priority')
 
         [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
         [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
 
         [[ $found -gt 0 ]] && echo "---"
         echo "id: $id"
-        cat "$f"
+        repp::md::get_frontmatter "$f"
         ((found++)) || true
     done
 
@@ -195,15 +194,15 @@ repp::scan_plans() {
 
     local found=0
 
-    for f in "$root"/*/PLAN.yml; do
+    for f in "$root"/*/PLAN.md; do
         [[ -f "$f" ]] || continue
 
         local id
         id=$(basename "$(dirname "$f")")
         local status
-        status=$(yq '.status' "$f")
+        status=$(repp::md::get_value "$f" '.status')
         local priority
-        priority=$(yq '.priority' "$f")
+        priority=$(repp::md::get_value "$f" '.priority')
 
         [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
         [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
@@ -253,16 +252,16 @@ repp::scan_tasks() {
 
     local found=0
 
-    for f in "$plan_dir"/*/TASK.yml; do
+    for f in "$plan_dir"/*/TASK.md; do
         [[ -f "$f" ]] || continue
 
         local task_slug
         task_slug=$(basename "$(dirname "$f")")
         local id="$plan_id/$task_slug"
         local status
-        status=$(yq '.status' "$f")
+        status=$(repp::md::get_value "$f" '.status')
         local priority
-        priority=$(yq '.priority' "$f")
+        priority=$(repp::md::get_value "$f" '.priority')
 
         [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
         [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
@@ -272,39 +271,6 @@ repp::scan_tasks() {
     done
 
     [[ $found -eq 0 ]] && repp::log::info "no tasks found in '$plan_id'"
-    return $REPP_EXIT_SUCCESS
-}
-
-repp::get_task_spec() {
-    local id="$1"
-
-    if [[ -z "$id" ]]; then
-        repp::log::error "task-id required"
-        return $REPP_EXIT_ERROR
-    fi
-
-    if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        repp::log::error "task-id must be 'plan-slug/task-slug'"
-        return $REPP_EXIT_ERROR
-    fi
-
-    local root
-    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
-
-    local plan_id="${id%/*}"
-    local task_slug="${id#*/}"
-    local file="$root/$plan_id/$task_slug/SPEC.md"
-
-    if [[ ! -f "$file" ]]; then
-        repp::log::info "could not find spec for task '$id'"
-        return $REPP_EXIT_ERROR
-    fi
-
-    if command -v gum &>/dev/null; then
-        gum format < "$file"
-    else
-        cat "$file"
-    fi
     return $REPP_EXIT_SUCCESS
 }
 
@@ -329,7 +295,7 @@ repp::is_task_blocked() {
 
     local plan_id="${id%/*}"
     local task_slug="${id#*/}"
-    local file="$root/$plan_id/$task_slug/TASK.yml"
+    local file="$root/$plan_id/$task_slug/TASK.md"
 
     if [[ ! -f "$file" ]]; then
         repp::log::error "task '$id' not found"
@@ -337,7 +303,7 @@ repp::is_task_blocked() {
     fi
 
     local blockers
-    blockers=$(yq '.blocked_by // [] | .[]' "$file" 2>/dev/null)
+    blockers=$(repp::md::get_value "$file" '.blocked_by // [] | .[]' 2>/dev/null)
 
     # No blockers = not blocked
     [[ -z "$blockers" ]] && return $REPP_EXIT_ERROR
@@ -345,7 +311,7 @@ repp::is_task_blocked() {
     while IFS= read -r blocker_id; do
         local blocker_plan="${blocker_id%/*}"
         local blocker_task="${blocker_id#*/}"
-        local blocker_file="$root/$blocker_plan/$blocker_task/TASK.yml"
+        local blocker_file="$root/$blocker_plan/$blocker_task/TASK.md"
 
         if [[ ! -f "$blocker_file" ]]; then
             repp::log::warn "blocker '$blocker_id' not found"
@@ -354,7 +320,7 @@ repp::is_task_blocked() {
         fi
 
         local blocker_status
-        blocker_status=$(yq '.status' "$blocker_file")
+        blocker_status=$(repp::md::get_value "$blocker_file" '.status')
 
         if [[ "$blocker_status" != "done" ]]; then
             # Found incomplete blocker = task is blocked

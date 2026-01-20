@@ -39,25 +39,6 @@ repp::cmd::task::get() {
     return $?
 }
 
-repp::cmd::task::get_spec() {
-    local task_id=""
-    local filters=()
-
-    for arg in "$@"; do
-        case "$arg" in
-            --*) filters+=("$arg") ;;
-            *) task_id="$arg" ;;
-        esac
-    done
-
-    if [[ -z "$task_id" ]]; then
-        task_id=$(repp::ui::select_task "" ${filters[@]+"${filters[@]}"}) || return $REPP_EXIT_ERROR
-    fi
-
-    repp::get_task_spec "$task_id"
-    return $?
-}
-
 repp::cmd::task::is_blocked() {
     local task_id="$1"
 

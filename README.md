@@ -22,8 +22,7 @@ File-based plan and task tracking that lives in your repository.
 
 Track plans and tasks as files in the repository:
 
-- **YAML metadata** for status, priority, dependencies
-- **Markdown specs** for detailed requirements
+- **Markdown with frontmatter** for metadata and specs in one file
 - **Git branches** map 1:1 with plans
 - **Shell-native** querying with standard tools
 
@@ -34,84 +33,70 @@ Everything versions together. Branch the code, branch the work tracking.
 | Principle          | Implementation                                            |
 | ------------------ | --------------------------------------------------------- |
 | Version controlled | All progress lives in git—branch, merge, review like code |
-| Conflict-friendly  | YAML line-based format resolves merge conflicts cleanly   |
+| Conflict-friendly  | Frontmatter + markdown resolves merge conflicts cleanly   |
 | Shell-native       | Data readable with `grep`, `find`, `cat`—no lock-in       |
-| Scales complexity  | Simple tasks need one YAML file; complex ones add specs   |
+| Self-contained     | Each task is one file: metadata + specification           |
 | Zero dependencies  | Works anywhere git works                                  |
 
 ## Data Model
 
-### PLAN.yml
+### PLAN.md
 
-```yaml
-priority: string     # Any value (e.g., P1, P2, P3)
-description: string  # What this plan is for
-status: string       # backlog | in_progress | done
+Markdown file with YAML frontmatter. Optional body for plan details.
+
+```markdown
+---
+priority: P1
+description: Plan description here
+status: in_progress
+---
+
+Optional markdown body for plan details.
 ```
+
+**Frontmatter fields:**
+
+| Field       | Type   | Values                           |
+| ----------- | ------ | -------------------------------- |
+| priority    | string | Any value (e.g., P1, P2, P3)     |
+| description | string | What this plan is for            |
+| status      | string | backlog \| in_progress \| done   |
 
 **Lifecycle:** `backlog → in_progress → done`
 
-**Example:**
+### TASK.md
 
-```yaml
-priority: 1
-description: Implement authentication system
-status: in_progress
+Markdown file with YAML frontmatter. Body contains task specification.
+
+```markdown
+---
+priority: P2
+description: Task description here
+status: backlog
+blocked_by:
+  - other-plan/other-task
+---
+
+Detailed task specification goes here.
+
+## Comments
+
+- First comment
+- Second comment
 ```
 
-### TASK.yml
+**Frontmatter fields:**
 
-```yaml
-priority: string     # Any value (e.g., P1, P2, P3)
-description: string  # What this task accomplishes
-status: string       # backlog | in_progress | review | done
-
-blocked_by: # Optional: Task IDs that must complete first
-  - plan-slug/task-slug
-comments: # Optional: Append notes to improve contextual awareness
-  - string
-```
+| Field       | Type     | Values                                    |
+| ----------- | -------- | ----------------------------------------- |
+| priority    | string   | Any value (e.g., P1, P2, P3)              |
+| description | string   | What this task accomplishes               |
+| status      | string   | backlog \| in_progress \| review \| done  |
+| blocked_by  | string[] | Optional: Task IDs that must complete first |
 
 **Lifecycle:** `backlog → in_progress → review ⇄ in_progress | done`
 
-**Example:**
-
-```yaml
-priority: 2
-description: Configure OAuth providers
-status: review
-blocked_by:
-  - auth-system/setup-database
-comments:
-  - "Implemented Google Oauth"
-  - "Implemented GitHub Oauth"
-  - "Updated ./SPEC.md"
-```
-
-### SPEC.md
-
-Optional markdown file for detailed task specifications.
-
-**Requirements:** filename must be `SPEC.md`, format must be markdown.
-
-There is no expected structure for spec files.
-
-**Example:**
-
-```md
-## assignee: Agent
-
-# Requirements
-
-- [x] Update our BetterAuth configuration to use Oauth.
-- [x] Add Google as an Oauth Provider
-- [x] Add GitHub as an Oauth Provider
-- [ ] Add Apple as an Oauth Provider
-
-## Guidelines
-
-...
-```
+**Comments:** Appended to `## Comments` section in markdown body via `repp task note`.
 
 ## Commands
 
@@ -156,13 +141,7 @@ repp task list [plan-id]
 repp task get [task-id]
   # task-id format: plan-id/task-slug
   # Interactive selection if task-id omitted
-```
-
-#### Get task specification
-
-```sh
-repp task get-spec [task-id]
-  # Interactive selection if task-id omitted
+  # Shows full file: frontmatter + body
 ```
 
 #### Check if task is blocked
@@ -208,6 +187,7 @@ repp task complete [task-id]
 ```sh
 repp task note [task-id] "comment"
   # Interactive selection if task-id omitted
+  # Appends to ## Comments section in markdown body
 ```
 
 ## Configuration

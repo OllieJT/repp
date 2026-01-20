@@ -3,6 +3,7 @@
 
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/validate.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/markdown.sh"
 
 repp::resolve_task_file() {
     local id="$1"
@@ -22,7 +23,7 @@ repp::resolve_task_file() {
 
     local plan_id="${id%/*}"
     local task_slug="${id#*/}"
-    local file="$root/$plan_id/$task_slug/TASK.yml"
+    local file="$root/$plan_id/$task_slug/TASK.md"
 
     if [[ ! -f "$file" ]]; then
         repp::log::error "task '$id' not found"
@@ -42,7 +43,7 @@ repp::set_task_priority() {
     local file
     file=$(repp::resolve_task_file "$id") || return $REPP_EXIT_ERROR
 
-    yq -yi --arg p "$priority" '.priority = $p' "$file"
+    repp::md::set_value "$file" ".priority = \"$priority\""
     return $REPP_EXIT_SUCCESS
 }
 
@@ -55,7 +56,7 @@ repp::set_task_status() {
     local file
     file=$(repp::resolve_task_file "$id") || return $REPP_EXIT_ERROR
 
-    yq -yi --arg s "$status" '.status = $s' "$file"
+    repp::md::set_value "$file" ".status = \"$status\""
     return $REPP_EXIT_SUCCESS
 }
 
@@ -71,6 +72,6 @@ repp::add_task_comment() {
     local file
     file=$(repp::resolve_task_file "$id") || return $REPP_EXIT_ERROR
 
-    yq -yi --arg c "$comment" '.comments = (.comments // []) + [$c]' "$file"
+    repp::md::add_comment "$file" "$comment"
     return $REPP_EXIT_SUCCESS
 }
