@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Plan/task query functions
+# Plan query functions
 
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/validate.sh"
@@ -77,100 +77,6 @@ repp::list_plans() {
     return $REPP_EXIT_SUCCESS
 }
 
-repp::get_task() {
-    local id="$1"
-
-    if [[ -z "$id" ]]; then
-        repp::log::error "task-id required"
-        return $REPP_EXIT_ERROR
-    fi
-
-    if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        repp::log::error "task-id must be 'plan-slug/task-slug'"
-        return $REPP_EXIT_ERROR
-    fi
-
-    local root
-    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
-
-    local plan_id="${id%/*}"
-    local task_slug="${id#*/}"
-    local file="$root/$plan_id/$task_slug/TASK.md"
-
-    if [[ ! -f "$file" ]]; then
-        repp::log::info "task '$id' not found"
-        return $REPP_EXIT_ERROR
-    fi
-
-    if command -v gum &>/dev/null; then
-        gum format < "$file"
-    else
-        cat "$file"
-    fi
-    return $REPP_EXIT_SUCCESS
-}
-
-repp::list_tasks() {
-    local plan_id="$1"
-    shift || true
-    local filter_status=""
-    local filter_priority=""
-
-    if [[ -z "$plan_id" ]]; then
-        repp::log::error "plan-id required"
-        return $REPP_EXIT_ERROR
-    fi
-
-    for arg in "$@"; do
-        case "$arg" in
-            --status=*) filter_status="${arg#*=}" ;;
-            --priority=*) filter_priority="${arg#*=}" ;;
-        esac
-    done
-
-    if [[ -n "$filter_status" ]]; then
-        repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
-    fi
-    if [[ -n "$filter_priority" ]]; then
-        repp::validate_priorities "$filter_priority" || return $REPP_EXIT_ERROR
-    fi
-
-    local root
-    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
-
-    local plan_dir="$root/$plan_id"
-
-    if [[ ! -d "$plan_dir" ]]; then
-        repp::log::info "plan '$plan_id' not found"
-        return $REPP_EXIT_ERROR
-    fi
-
-    local found=0
-
-    for f in "$plan_dir"/*/TASK.md; do
-        [[ -f "$f" ]] || continue
-
-        local task_slug
-        task_slug=$(basename "$(dirname "$f")")
-        local id="$plan_id/$task_slug"
-        local status
-        status=$(repp::md::get_value "$f" '.status')
-        local priority
-        priority=$(repp::md::get_value "$f" '.priority')
-
-        [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
-        [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
-
-        [[ $found -gt 0 ]] && echo "---"
-        echo "id: $id"
-        repp::md::get_frontmatter "$f"
-        ((found++)) || true
-    done
-
-    [[ $found -eq 0 ]] && repp::log::info "no tasks found in '$plan_id'"
-    return $REPP_EXIT_SUCCESS
-}
-
 repp::scan_plans() {
     local filter_status=""
     local filter_priority=""
@@ -215,90 +121,24 @@ repp::scan_plans() {
     return $REPP_EXIT_SUCCESS
 }
 
-repp::scan_tasks() {
-    local plan_id="$1"
-    shift || true
-    local filter_status=""
-    local filter_priority=""
+repp::is_plan_blocked() {
+    # Exit codes use INVERTED semantics for conditional usage:
+    #   0 (REPP_EXIT_SUCCESS) = plan IS blocked
+    #   1 (REPP_EXIT_ERROR)   = plan is NOT blocked (or error)
+    local id="$1"
 
-    if [[ -z "$plan_id" ]]; then
+    if [[ -z "$id" ]]; then
         repp::log::error "plan-id required"
         return $REPP_EXIT_ERROR
     fi
 
-    for arg in "$@"; do
-        case "$arg" in
-            --status=*) filter_status="${arg#*=}" ;;
-            --priority=*) filter_priority="${arg#*=}" ;;
-        esac
-    done
-
-    if [[ -n "$filter_status" ]]; then
-        repp::validate_status "$filter_status" || return $REPP_EXIT_ERROR
-    fi
-    if [[ -n "$filter_priority" ]]; then
-        repp::validate_priorities "$filter_priority" || return $REPP_EXIT_ERROR
-    fi
-
     local root
     root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local plan_dir="$root/$plan_id"
-
-    if [[ ! -d "$plan_dir" ]]; then
-        repp::log::info "plan '$plan_id' not found"
-        return $REPP_EXIT_ERROR
-    fi
-
-    local found=0
-
-    for f in "$plan_dir"/*/TASK.md; do
-        [[ -f "$f" ]] || continue
-
-        local task_slug
-        task_slug=$(basename "$(dirname "$f")")
-        local id="$plan_id/$task_slug"
-        local status
-        status=$(repp::md::get_value "$f" '.status')
-        local priority
-        priority=$(repp::md::get_value "$f" '.priority')
-
-        [[ -n "$filter_status" && "$status" != "$filter_status" ]] && continue
-        [[ -n "$filter_priority" ]] && ! repp::priority_in_list "$priority" "$filter_priority" && continue
-
-        echo "$id"
-        ((found++)) || true
-    done
-
-    [[ $found -eq 0 ]] && repp::log::info "no tasks found in '$plan_id'"
-    return $REPP_EXIT_SUCCESS
-}
-
-repp::is_task_blocked() {
-    # Exit codes use INVERTED semantics for conditional usage:
-    #   0 (REPP_EXIT_SUCCESS) = task IS blocked
-    #   1 (REPP_EXIT_ERROR)   = task is NOT blocked (or error)
-    local id="$1"
-
-    if [[ -z "$id" ]]; then
-        repp::log::error "task-id required"
-        return $REPP_EXIT_ERROR
-    fi
-
-    if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        repp::log::error "task-id must be 'plan-slug/task-slug'"
-        return $REPP_EXIT_ERROR
-    fi
-
-    local root
-    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
-
-    local plan_id="${id%/*}"
-    local task_slug="${id#*/}"
-    local file="$root/$plan_id/$task_slug/TASK.md"
+    local file="$root/$id/PLAN.md"
 
     if [[ ! -f "$file" ]]; then
-        repp::log::error "task '$id' not found"
+        repp::log::error "plan '$id' not found"
         return $REPP_EXIT_ERROR
     fi
 
@@ -309,9 +149,7 @@ repp::is_task_blocked() {
     [[ -z "$blockers" ]] && return $REPP_EXIT_ERROR
 
     while IFS= read -r blocker_id; do
-        local blocker_plan="${blocker_id%/*}"
-        local blocker_task="${blocker_id#*/}"
-        local blocker_file="$root/$blocker_plan/$blocker_task/TASK.md"
+        local blocker_file="$root/$blocker_id/PLAN.md"
 
         if [[ ! -f "$blocker_file" ]]; then
             repp::log::warn "blocker '$blocker_id' not found"
@@ -323,7 +161,7 @@ repp::is_task_blocked() {
         blocker_status=$(repp::md::get_value "$blocker_file" '.status')
 
         if [[ "$blocker_status" != "done" ]]; then
-            # Found incomplete blocker = task is blocked
+            # Found incomplete blocker = plan is blocked
             return $REPP_EXIT_SUCCESS
         fi
     done <<< "$blockers"
