@@ -29,7 +29,7 @@ source "$SCRIPT_DIR/lib/mutate.sh"
 
 # Source command handlers
 source "$SCRIPT_DIR/commands/plan.sh"
-source "$SCRIPT_DIR/commands/task.sh"
+source "$SCRIPT_DIR/commands/config.sh"
 
 repp::check_deps || exit $REPP_EXIT_ERROR
 
@@ -39,9 +39,15 @@ repp::help::plan() {
 Usage: repp plan <action> [args] [flags]
 
 Actions:
-  list    List all plans
-  get     Get plan details
-  scan    List plan IDs only
+  list        List all plans
+  get         Get plan details
+  scan        List plan IDs only
+  prioritize  Set plan priority
+  review      Transition plan to review
+  complete    Transition plan to done
+  note        Add comment to plan
+  is-blocked  Check if plan is blocked
+  validate    Find invalid plans
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
@@ -50,39 +56,10 @@ Flags:
 Examples:
   repp plan list --status=in_progress
   repp plan get my-plan
-  repp plan scan
+  repp plan prioritize my-plan P1
+  repp plan note my-plan "test comment"
 EOF
 }
-
-repp::help::task() {
-    cat <<EOF
-Usage: repp task <action> [args] [flags]
-
-Actions:
-  list        List tasks in a plan
-  get         Get task details
-  get-spec    Get task specification (SPEC.md)
-  is-blocked  Check if task is blocked
-  scan        List task IDs only
-  prioritize  Set task priority
-  review      Transition task to review
-  complete    Transition task to done
-  note        Add comment to task
-
-Flags:
-  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
-  --priority=X,Y,... Filter by priority (exact match, comma-separated)
-
-Examples:
-  repp task list my-plan --status=backlog
-  repp task get my-plan/my-task
-  repp task prioritize my-plan/my-task 1
-  repp task review my-plan/my-task
-  repp task complete my-plan/my-task
-  repp task note my-plan/my-task "comment"
-EOF
-}
-
 
 # Action-level help functions
 repp::help::plan::list() {
@@ -131,137 +108,106 @@ Examples:
 EOF
 }
 
-repp::help::task::list() {
+repp::help::plan::prioritize() {
     cat <<EOF
-Usage: repp task list [plan-id] [flags]
+Usage: repp plan prioritize [plan-id] [priority]
 
-List tasks within a plan. If no plan-id is provided,
-an interactive selector will be shown.
-
-Flags:
-  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
-  --priority=X,Y,... Filter by priority (exact match, comma-separated)
-
-Examples:
-  repp task list my-plan
-  repp task list my-plan --status=backlog
-  repp task list --priority=1,2
-EOF
-}
-
-repp::help::task::get() {
-    cat <<EOF
-Usage: repp task get [task-id]
-
-Get details for a specific task. If no task-id is provided,
-an interactive selector will be shown.
-
-Task ID format: plan-id/task-slug
-
-Examples:
-  repp task get my-plan/my-task
-  repp task get
-EOF
-}
-
-repp::help::task::get_spec() {
-    cat <<EOF
-Usage: repp task get-spec [task-id]
-
-Get the specification (SPEC.md) for a task. If no task-id is provided,
-an interactive selector will be shown.
-
-Task ID format: plan-id/task-slug
-
-Examples:
-  repp task get-spec my-plan/my-task
-  repp task get-spec
-EOF
-}
-
-repp::help::task::is_blocked() {
-    cat <<EOF
-Usage: repp task is-blocked <task-id>
-
-Check if a task is blocked by incomplete dependencies.
-
-Exit codes:
-  0 - Task is blocked
-  1 - Task is not blocked
-
-Examples:
-  repp task is-blocked my-plan/my-task
-EOF
-}
-
-repp::help::task::scan() {
-    cat <<EOF
-Usage: repp task scan [plan-id] [flags]
-
-List task IDs only (no file contents).
-
-Flags:
-  --status=X         Filter by status (backlog|discovery|in_progress|review|done)
-  --priority=X,Y,... Filter by priority (exact match, comma-separated)
-
-Examples:
-  repp task scan my-plan
-  repp task scan my-plan --status=backlog
-EOF
-}
-
-repp::help::task::prioritize() {
-    cat <<EOF
-Usage: repp task prioritize [task-id] [priority]
-
-Set task priority. If no task-id is provided, an interactive
+Set plan priority. If no plan-id is provided, an interactive
 selector will be shown.
 
 Priority: Any alphanumeric value (e.g., 1, 01, P1, high)
 
 Examples:
-  repp task prioritize my-plan/my-task 1
-  repp task prioritize my-plan/my-task P1
-  repp task prioritize
+  repp plan prioritize my-plan 1
+  repp plan prioritize my-plan P1
+  repp plan prioritize
 EOF
 }
 
-repp::help::task::review() {
+repp::help::plan::review() {
     cat <<EOF
-Usage: repp task review [task-id]
+Usage: repp plan review [plan-id]
 
-Transition task status to review. If no task-id is provided,
+Transition plan status to review. If no plan-id is provided,
 an interactive selector will be shown.
 
 Examples:
-  repp task review my-plan/my-task
-  repp task review
+  repp plan review my-plan
+  repp plan review
 EOF
 }
 
-repp::help::task::complete() {
+repp::help::plan::complete() {
     cat <<EOF
-Usage: repp task complete [task-id]
+Usage: repp plan complete [plan-id]
 
-Transition task status to done. If no task-id is provided,
+Transition plan status to done. If no plan-id is provided,
 an interactive selector will be shown.
 
 Examples:
-  repp task complete my-plan/my-task
-  repp task complete
+  repp plan complete my-plan
+  repp plan complete
 EOF
 }
 
-repp::help::task::note() {
+repp::help::plan::note() {
     cat <<EOF
-Usage: repp task note [task-id] [comment]
+Usage: repp plan note [plan-id] [comment]
 
-Add a comment to the task. If no task-id is provided,
+Add a comment to the plan. If no plan-id is provided,
 an interactive selector will be shown.
 
 Examples:
-  repp task note my-plan/my-task "Waiting on API team"
-  repp task note
+  repp plan note my-plan "Waiting on API team"
+  repp plan note
+EOF
+}
+
+repp::help::plan::is_blocked() {
+    cat <<EOF
+Usage: repp plan is-blocked <plan-id>
+
+Check if a plan is blocked by incomplete dependencies.
+
+Exit codes:
+  0 - Plan is blocked
+  1 - Plan is not blocked
+
+Examples:
+  repp plan is-blocked my-plan
+EOF
+}
+
+repp::help::plan::validate() {
+    cat <<EOF
+Usage: repp plan validate
+
+Find plans with missing or invalid frontmatter.
+
+Examples:
+  repp plan validate
+EOF
+}
+
+repp::help::config() {
+    cat <<EOF
+Usage: repp config <action> [flags]
+
+Actions:
+  show        Show resolved settings
+
+Run 'repp config show --help' for details.
+EOF
+}
+
+repp::help::config::show() {
+    cat <<EOF
+Usage: repp config show
+
+Output resolved settings (defaults merged with user config).
+
+Examples:
+  repp config show
 EOF
 }
 
@@ -296,6 +242,30 @@ repp::main() {
                     if repp::has_help_flag "$@"; then repp::help::plan::scan; return $REPP_EXIT_SUCCESS
                     else repp::cmd::plan::scan "$@"; return $?; fi
                     ;;
+                prioritize)
+                    if repp::has_help_flag "$@"; then repp::help::plan::prioritize; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::prioritize "$@"; return $?; fi
+                    ;;
+                review)
+                    if repp::has_help_flag "$@"; then repp::help::plan::review; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::review "$@"; return $?; fi
+                    ;;
+                complete)
+                    if repp::has_help_flag "$@"; then repp::help::plan::complete; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::complete "$@"; return $?; fi
+                    ;;
+                note)
+                    if repp::has_help_flag "$@"; then repp::help::plan::note; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::note "$@"; return $?; fi
+                    ;;
+                is-blocked)
+                    if repp::has_help_flag "$@"; then repp::help::plan::is_blocked; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::is_blocked "$@"; return $?; fi
+                    ;;
+                validate)
+                    if repp::has_help_flag "$@"; then repp::help::plan::validate; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::validate "$@"; return $?; fi
+                    ;;
                 *)
                     echo "Unknown action: $action" >&2
                     repp::help::plan
@@ -303,48 +273,16 @@ repp::main() {
                     ;;
             esac
             ;;
-        task)
+        config)
             case "$action" in
-                --help|-h|"") repp::help::task; return $REPP_EXIT_SUCCESS ;;
-                list)
-                    if repp::has_help_flag "$@"; then repp::help::task::list; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::list "$@"; return $?; fi
-                    ;;
-                get)
-                    if repp::has_help_flag "$@"; then repp::help::task::get; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::get "$@"; return $?; fi
-                    ;;
-                get-spec)
-                    if repp::has_help_flag "$@"; then repp::help::task::get_spec; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::get_spec "$@"; return $?; fi
-                    ;;
-                is-blocked)
-                    if repp::has_help_flag "$@"; then repp::help::task::is_blocked; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::is_blocked "$@"; return $?; fi
-                    ;;
-                scan)
-                    if repp::has_help_flag "$@"; then repp::help::task::scan; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::scan "$@"; return $?; fi
-                    ;;
-                prioritize)
-                    if repp::has_help_flag "$@"; then repp::help::task::prioritize; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::prioritize "$@"; return $?; fi
-                    ;;
-                review)
-                    if repp::has_help_flag "$@"; then repp::help::task::review; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::review "$@"; return $?; fi
-                    ;;
-                complete)
-                    if repp::has_help_flag "$@"; then repp::help::task::complete; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::complete "$@"; return $?; fi
-                    ;;
-                note)
-                    if repp::has_help_flag "$@"; then repp::help::task::note; return $REPP_EXIT_SUCCESS
-                    else repp::cmd::task::note "$@"; return $?; fi
+                --help|-h|"") repp::help::config; return $REPP_EXIT_SUCCESS ;;
+                show)
+                    if repp::has_help_flag "$@"; then repp::help::config::show; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::config::show "$@"; return $?; fi
                     ;;
                 *)
                     echo "Unknown action: $action" >&2
-                    repp::help::task
+                    repp::help::config
                     return $REPP_EXIT_ERROR
                     ;;
             esac
@@ -367,20 +305,18 @@ Usage: repp <resource> <action> [args]
 
 Resources:
   plan
-    list          List plans
-    get           Get plan details
-    scan          List plan IDs only
+    list        List plans
+    get         Get plan details
+    scan        List plan IDs only
+    prioritize  Set plan priority
+    review      Transition plan to review
+    complete    Transition plan to done
+    note        Add comment to plan
+    is-blocked  Check if plan is blocked
+    validate    Find invalid plans
 
-  task
-    list          List tasks in a plan
-    get           Get task details
-    get-spec      Get task specification
-    is-blocked    Check if task is blocked
-    scan          List task IDs only
-    prioritize    Set task priority
-    review        Transition task to review
-    complete      Transition task to done
-    note          Add comment to task
+  config
+    show        Show resolved settings
 
 Run 'repp <resource> --help' for details.
 EOF

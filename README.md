@@ -2,225 +2,183 @@
 
 # Repo Plans `repp`
 
-File-based plan and task tracking that lives in your repository.
+CLI for documenting workloads in agent-friendly codebases.
 
 ## What It Is
 
-**Task documentation that lives with code.** Plans and specs version-controlled alongside the code they describe. Branch the code, branch the context.
+**The right abstraction for AI-assisted planning.** Rather than inventing new systems, repp extends markdown plan documents with frontmatter and provides a CLI for graceful automation.
 
-**Structured for AI agents.** Agents read requirements, update status, and commit changes—all without external APIs. Detailed plans reduce context window bloat and maintain output quality.
+**Built for agent workflows.** AI agents work best with pre-considered plans. Repp supports patterns like the Ralph Wiggum Loop—agents that plan, execute, and iterate autonomously.
 
-**Code as source of truth.** Your repo reflects what the app _is_ and what needs to be _done_. Task state branches, merges, and diffs with the code.
+**Context-efficient by design.** Planning and task selection shouldn't consume the context needed for actual work. The CLI returns only metadata, and is queryable by attributes like status and priority. This enables agents to spend context on the work, not the tooling.
 
 ## What It Is Not
 
-**Not a replacement for team alignment tools.** Keep using whatever works for coordination and reporting.
+**Not a replacement for team coordination.** Keep using whatever works for human alignment and reporting.
 
 **Not a product.** Primitives your team already knows (YAML, Markdown, Bash). Opinionated enough to be useful, flexible enough to extend.
 
+## Usage
+
+Run directly with npx:
+
+```sh
+# Recommended
+npx repp plan list
+```
+
+Or install globally:
+
+```sh
+npm install -g repp@latest
+repp plan list
+```
+
 ## Solution
 
-Track plans and tasks as files in the repository:
+Enable agent task selection and context management:
 
-- **YAML metadata** for status, priority, dependencies
-- **Markdown specs** for detailed requirements
-- **Git branches** map 1:1 with plans
+- **Markdown with frontmatter** for metadata and specs in one file
+- **Metadata-only queries** minimize context spent on task discovery
+- **Flexible filtering** by status, priority, and blocking dependencies
 - **Shell-native** querying with standard tools
 
-Everything versions together. Branch the code, branch the work tracking.
+Agents can discover available tasks, read detailed specs when needed, and update status—all version-controlled with the code.
 
 ## Design Principles
 
 | Principle          | Implementation                                            |
 | ------------------ | --------------------------------------------------------- |
 | Version controlled | All progress lives in git—branch, merge, review like code |
-| Conflict-friendly  | YAML line-based format resolves merge conflicts cleanly   |
+| Context-efficient  | Metadata queries minimize overhead for task selection     |
+| Queryable          | Filter plans and tasks by status, priority, dependencies  |
 | Shell-native       | Data readable with `grep`, `find`, `cat`—no lock-in       |
-| Scales complexity  | Simple tasks need one YAML file; complex ones add specs   |
-| Zero dependencies  | Works anywhere git works                                  |
+| Self-contained     | Each task is one file: metadata + specification           |
 
 ## Data Model
 
-### PLAN.yml
+### Plans (`plans/<id>.md`)
 
-```yaml
-priority: string     # Any value (e.g., P1, P2, P3)
-description: string  # What this plan is for
-status: string       # backlog | in_progress | done
-```
+Markdown file with YAML frontmatter. Optional body for plan details.
 
-**Lifecycle:** `backlog → in_progress → done`
-
-**Example:**
-
-```yaml
-priority: 1
-description: Implement authentication system
+```markdown
+---
+priority: P1
+description: Plan description here
 status: in_progress
+---
+
+Optional markdown body for plan details.
 ```
 
-### TASK.yml
+**Frontmatter fields:**
 
-```yaml
-priority: string     # Any value (e.g., P1, P2, P3)
-description: string  # What this task accomplishes
-status: string       # backlog | in_progress | review | done
+| Field       | Type   | Values                         |
+| ----------- | ------ | ------------------------------ |
+| priority    | string | Any value (e.g., P1, P2, P3)   |
+| description | string | What this plan is for          |
+| status      | string | backlog \| discovery \| in_progress \| review \| done |
 
-blocked_by: # Optional: Task IDs that must complete first
-  - plan-slug/task-slug
-comments: # Optional: Append notes to improve contextual awareness
-  - string
+**Lifecycle:** `backlog → discovery → in_progress → review → done`
+
+### TASK.md
+
+Markdown file with YAML frontmatter. Body contains task specification.
+
+```markdown
+---
+priority: P2
+description: Task description here
+status: backlog
+blocked_by:
+  - other-plan/other-task
+---
+
+Detailed task specification goes here.
+
+## Comments
+
+- First comment
+- Second comment
 ```
+
+**Frontmatter fields:**
+
+| Field       | Type     | Values                                      |
+| ----------- | -------- | ------------------------------------------- |
+| priority    | string   | Any value (e.g., P1, P2, P3)                |
+| description | string   | What this task accomplishes                 |
+| status      | string   | backlog \| in_progress \| review \| done    |
+| blocked_by  | string[] | Optional: Task IDs that must complete first |
 
 **Lifecycle:** `backlog → in_progress → review ⇄ in_progress | done`
 
-**Example:**
-
-```yaml
-priority: 2
-description: Configure OAuth providers
-status: review
-blocked_by:
-  - auth-system/setup-database
-comments:
-  - "Implemented Google Oauth"
-  - "Implemented GitHub Oauth"
-  - "Updated ./SPEC.md"
-```
-
-### SPEC.md
-
-Optional markdown file for detailed task specifications.
-
-**Requirements:** filename must be `SPEC.md`, format must be markdown.
-
-There is no expected structure for spec files.
-
-**Example:**
-
-```md
-## assignee: Agent
-
-# Requirements
-
-- [x] Update our BetterAuth configuration to use Oauth.
-- [x] Add Google as an Oauth Provider
-- [x] Add GitHub as an Oauth Provider
-- [ ] Add Apple as an Oauth Provider
-
-## Guidelines
-
-...
-```
+**Comments:** Appended to `## Comments` section in markdown body via `repp plan note`.
 
 ## Commands
 
 ### Plan Commands
 
-#### List all plans
-
 ```sh
 repp plan list
-  --status=X        # Filter by status (backlog|in_progress|done)
+  --status=X        # Filter by status (backlog|discovery|in_progress|review|done)
   --priority=X,Y    # Filter by priority (exact match)
-```
 
-#### Get plan details
-
-```sh
 repp plan get [plan-id]
   # Interactive selection if plan-id omitted
-```
 
-#### List plan IDs only
-
-```sh
 repp plan scan
   --status=X        # Filter by status
   --priority=X,Y    # Filter by priority (exact match)
-```
 
-### Task Commands
-
-#### List tasks in a plan
-
-```sh
-repp task list [plan-id]
-  --status=X        # Filter by status (backlog|in_progress|review|done)
-  --priority=X,Y    # Filter by priority (exact match)
-```
-
-#### Get task details
-
-```sh
-repp task get [task-id]
-  # task-id format: plan-id/task-slug
-  # Interactive selection if task-id omitted
-```
-
-#### Get task specification
-
-```sh
-repp task get-spec [task-id]
-  # Interactive selection if task-id omitted
-```
-
-#### Check if task is blocked
-
-```sh
-repp task is-blocked <task-id>
-  # Exit 0 = blocked
-  # Exit 1 = not blocked
-```
-
-#### List task IDs only
-
-```sh
-repp task scan [plan-id]
-  --status=X        # Filter by status
-  --priority=X,Y    # Filter by priority (exact match)
-```
-
-#### Set task priority
-
-```sh
-repp task prioritize [task-id] [priority]
+repp plan prioritize [plan-id] [priority]
   # priority: any alphanumeric (e.g., 1, P1, high)
   # Interactive input if args omitted
+
+repp plan review [plan-id]
+  # Transition plan to review status
+
+repp plan complete [plan-id]
+  # Transition plan to done status
+
+repp plan note [plan-id] "comment"
+  # Appends to ## Comments section
+
+repp plan is-blocked <plan-id>
+  # Exit 0 = blocked, Exit 1 = not blocked
+
+repp plan validate
+  # Find plans with missing or invalid frontmatter
 ```
 
-#### Transition task to review
+### Config Commands
 
 ```sh
-repp task review [task-id]
-  # Interactive selection if task-id omitted
-```
-
-#### Transition task to done
-
-```sh
-repp task complete [task-id]
-  # Interactive selection if task-id omitted
-```
-
-#### Add comment to task
-
-```sh
-repp task note [task-id] "comment"
-  # Interactive selection if task-id omitted
+repp config show
+  # Output resolved settings (defaults merged with user config)
 ```
 
 ## Configuration
 
-Create `.repprc` in project root:
+Plans live in `{git-root}/plans/`. Optionally add `plans/settings.json`:
 
-```bash
-# Path to your plans folder, relative to this file.
-REPP_ROOT="path/to/plans"
-
-# Optional: Custom priority values for interactive selection (default: P0,P1,P2,P3,P4)
-REPP_PRIORITIES="critical,high,medium,low"
+```json
+{
+	"$schema": "https://unpkg.com/repp@latest/src/schema/settings.schema.json",
+	"priorities": ["P0", "P1", "P2", "P3", "P4"]
+}
 ```
+
+| Field        | Type       | Default                      | Description               |
+| ------------ | ---------- | ---------------------------- | ------------------------- |
+| `priorities` | `string[]` | `["P0","P1","P2","P3","P4"]` | Priority values for tasks |
+
+## Agent Tooling
+
+Convenience tools for AI agents:
+
+- **Skills** for plan/task workflows via Claude Code
+- **Sub-agent configuration** for autonomous Ralph loop execution
 
 ## Dependencies
 

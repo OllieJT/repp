@@ -1,31 +1,25 @@
 #!/usr/bin/env bash
-# Task mutation functions
+# Plan mutation functions
 
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/validate.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/markdown.sh"
 
-repp::resolve_task_file() {
+repp::resolve_plan_file() {
     local id="$1"
 
     if [[ -z "$id" ]]; then
-        repp::log::error "task-id required"
-        return $REPP_EXIT_ERROR
-    fi
-
-    if [[ ! "$id" =~ ^[^/]+/[^/]+$ ]]; then
-        repp::log::error "task-id must be 'plan-slug/task-slug'"
+        repp::log::error "plan-id required"
         return $REPP_EXIT_ERROR
     fi
 
     local root
     root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local plan_id="${id%/*}"
-    local task_slug="${id#*/}"
-    local file="$root/$plan_id/$task_slug/TASK.yml"
+    local file="$root/$id.md"
 
     if [[ ! -f "$file" ]]; then
-        repp::log::error "task '$id' not found"
+        repp::log::error "plan '$id' not found"
         return $REPP_EXIT_ERROR
     fi
 
@@ -33,33 +27,33 @@ repp::resolve_task_file() {
     return $REPP_EXIT_SUCCESS
 }
 
-repp::set_task_priority() {
+repp::set_plan_priority() {
     local id="$1"
     local priority="$2"
 
     repp::validate_priority "$priority" || return $REPP_EXIT_ERROR
 
     local file
-    file=$(repp::resolve_task_file "$id") || return $REPP_EXIT_ERROR
+    file=$(repp::resolve_plan_file "$id") || return $REPP_EXIT_ERROR
 
-    yq -yi --arg p "$priority" '.priority = $p' "$file"
+    repp::md::set_value "$file" ".priority = \"$priority\""
     return $REPP_EXIT_SUCCESS
 }
 
-repp::set_task_status() {
+repp::set_plan_status() {
     local id="$1"
     local status="$2"
 
     repp::validate_status "$status" || return $REPP_EXIT_ERROR
 
     local file
-    file=$(repp::resolve_task_file "$id") || return $REPP_EXIT_ERROR
+    file=$(repp::resolve_plan_file "$id") || return $REPP_EXIT_ERROR
 
-    yq -yi --arg s "$status" '.status = $s' "$file"
+    repp::md::set_value "$file" ".status = \"$status\""
     return $REPP_EXIT_SUCCESS
 }
 
-repp::add_task_comment() {
+repp::add_plan_comment() {
     local id="$1"
     local comment="$2"
 
@@ -69,8 +63,8 @@ repp::add_task_comment() {
     fi
 
     local file
-    file=$(repp::resolve_task_file "$id") || return $REPP_EXIT_ERROR
+    file=$(repp::resolve_plan_file "$id") || return $REPP_EXIT_ERROR
 
-    yq -yi --arg c "$comment" '.comments = (.comments // []) + [$c]' "$file"
+    repp::md::add_comment "$file" "$comment"
     return $REPP_EXIT_SUCCESS
 }
