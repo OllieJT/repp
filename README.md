@@ -117,6 +117,13 @@ Detailed task specification goes here.
 
 ## Commands
 
+### Init
+
+```sh
+repp init
+  # Create plans/ directory and settings.json if they don't exist
+```
+
 ### Plan Commands
 
 ```sh
