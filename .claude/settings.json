@@ -1,17 +1,10 @@
 {
-  "spinnerTipsEnabled": false,
+  "alwaysThinkingEnabled": true,
   "attribution": {
     "commit": " Co-Authored-By: Claude <noreply@anthropic.com>",
     "pr": ""
   },
-  "extraKnownMarketplaces": {
-    "superbenefit/sb-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "superbenefit/sb-marketplace"
-      }
-    }
-  },
   "outputStyle": "default",
-  "alwaysThinkingEnabled": true
+  "plansDirectory": "./plans",
+  "spinnerTipsEnabled": false
 }
