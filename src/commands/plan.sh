@@ -34,11 +34,18 @@ repp::cmd::plan::prioritize() {
     local plan_id=""
     local priority=""
 
+    repp::load_settings || return $REPP_EXIT_ERROR
+
+    local is_priority
     for arg in "$@"; do
+        is_priority=false
+        for p in "${REPP_PRIORITIES[@]}"; do
+            [[ "$arg" == "$p" ]] && { is_priority=true; break; }
+        done
+
         case "$arg" in
             --*) : ;;
-            */*) plan_id="$arg" ;;
-            *) [[ -z "$plan_id" ]] && plan_id="$arg" || priority="$arg" ;;
+            *) $is_priority && priority="$arg" || plan_id="$arg" ;;
         esac
     done
 
@@ -48,7 +55,6 @@ repp::cmd::plan::prioritize() {
 
     if [[ -z "$priority" ]]; then
         if command -v gum &>/dev/null; then
-            repp::load_settings || return $REPP_EXIT_ERROR
             priority=$(gum choose --header "Select priority" "${REPP_PRIORITIES[@]}") || return $REPP_EXIT_ERROR
         else
             repp::log::error "priority required"
