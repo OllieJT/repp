@@ -18,6 +18,22 @@ CLI for documenting workloads in agent-friendly codebases.
 
 **Not a product.** Primitives your team already knows (YAML, Markdown, Bash). Opinionated enough to be useful, flexible enough to extend.
 
+## Usage
+
+Run directly with npx:
+
+```sh
+# Recommended
+npx repp plan list
+```
+
+Or install globally:
+
+```sh
+npm install -g repp@latest
+repp plan list
+```
+
 ## Solution
 
 Enable agent task selection and context management:
@@ -31,13 +47,13 @@ Agents can discover available tasks, read detailed specs when needed, and update
 
 ## Design Principles
 
-| Principle           | Implementation                                            |
-| ------------------- | --------------------------------------------------------- |
-| Version controlled  | All progress lives in git—branch, merge, review like code |
-| Context-efficient   | Metadata queries minimize overhead for task selection     |
-| Queryable           | Filter plans and tasks by status, priority, dependencies  |
-| Shell-native        | Data readable with `grep`, `find`, `cat`—no lock-in       |
-| Self-contained      | Each task is one file: metadata + specification           |
+| Principle          | Implementation                                            |
+| ------------------ | --------------------------------------------------------- |
+| Version controlled | All progress lives in git—branch, merge, review like code |
+| Context-efficient  | Metadata queries minimize overhead for task selection     |
+| Queryable          | Filter plans and tasks by status, priority, dependencies  |
+| Shell-native       | Data readable with `grep`, `find`, `cat`—no lock-in       |
+| Self-contained     | Each task is one file: metadata + specification           |
 
 ## Data Model
 
@@ -57,11 +73,11 @@ Optional markdown body for plan details.
 
 **Frontmatter fields:**
 
-| Field       | Type   | Values                           |
-| ----------- | ------ | -------------------------------- |
-| priority    | string | Any value (e.g., P1, P2, P3)     |
-| description | string | What this plan is for            |
-| status      | string | backlog \| in_progress \| done   |
+| Field       | Type   | Values                         |
+| ----------- | ------ | ------------------------------ |
+| priority    | string | Any value (e.g., P1, P2, P3)   |
+| description | string | What this plan is for          |
+| status      | string | backlog \| in_progress \| done |
 
 **Lifecycle:** `backlog → in_progress → done`
 
@@ -88,11 +104,11 @@ Detailed task specification goes here.
 
 **Frontmatter fields:**
 
-| Field       | Type     | Values                                    |
-| ----------- | -------- | ----------------------------------------- |
-| priority    | string   | Any value (e.g., P1, P2, P3)              |
-| description | string   | What this task accomplishes               |
-| status      | string   | backlog \| in_progress \| review \| done  |
+| Field       | Type     | Values                                      |
+| ----------- | -------- | ------------------------------------------- |
+| priority    | string   | Any value (e.g., P1, P2, P3)                |
+| description | string   | What this task accomplishes                 |
+| status      | string   | backlog \| in_progress \| review \| done    |
 | blocked_by  | string[] | Optional: Task IDs that must complete first |
 
 **Lifecycle:** `backlog → in_progress → review ⇄ in_progress | done`
@@ -197,14 +213,14 @@ Plans live in `{git-root}/plans/`. Optionally add `plans/settings.json`:
 
 ```json
 {
-  "$schema": "https://unpkg.com/repp@latest/src/schema/settings.schema.json",
-  "priorities": ["P0", "P1", "P2", "P3", "P4"]
+	"$schema": "https://unpkg.com/repp@latest/src/schema/settings.schema.json",
+	"priorities": ["P0", "P1", "P2", "P3", "P4"]
 }
 ```
 
-| Field        | Type       | Default                       | Description                |
-| ------------ | ---------- | ----------------------------- | -------------------------- |
-| `priorities` | `string[]` | `["P0","P1","P2","P3","P4"]`  | Priority values for tasks  |
+| Field        | Type       | Default                      | Description               |
+| ------------ | ---------- | ---------------------------- | ------------------------- |
+| `priorities` | `string[]` | `["P0","P1","P2","P3","P4"]` | Priority values for tasks |
 
 ## Agent Tooling
 
