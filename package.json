@@ -1,48 +1,49 @@
 {
-  "name": "repp",
-  "version": "0.1.0",
-  "description": "File-based plan and task management that lives in git.",
-  "author": "OllieJT",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/OllieJT/repp.git"
-  },
-  "homepage": "https://github.com/OllieJT/repp",
-  "bugs": {
-    "url": "https://github.com/OllieJT/repp/issues"
-  },
-  "engines": {
-    "node": ">=24"
-  },
-  "bin": {
-    "repp": "src/repp"
-  },
-  "files": [
-    "src/"
-  ],
-  "keywords": [
-    "cli",
-    "task-management",
-    "plan-management",
-    "ralph-wiggum",
-    "context-management",
-    "productivity"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {
-    "changeset": "changeset",
-    "version": "changeset version",
-    "release": "changeset publish",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json,css,html}\""
-  },
-  "devDependencies": {
-    "@changesets/changelog-github": "^0.5.2",
-    "@changesets/cli": "^2.29.8"
-  },
-  "dependencies": {
-    "prettier": "^3.7.4"
-  }
+	"name": "repp",
+	"version": "0.1.0",
+	"description": "File-based plan and task management that lives in git.",
+	"author": "OllieJT",
+	"license": "ISC",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/OllieJT/repp.git"
+	},
+	"homepage": "https://github.com/OllieJT/repp",
+	"bugs": {
+		"url": "https://github.com/OllieJT/repp/issues"
+	},
+	"engines": {
+		"node": ">=24"
+	},
+	"packageManager": "npm@11.6.2",
+	"bin": {
+		"repp": "src/repp"
+	},
+	"files": [
+		"src/"
+	],
+	"keywords": [
+		"cli",
+		"task-management",
+		"plan-management",
+		"ralph-wiggum",
+		"context-management",
+		"productivity"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"changeset": "changeset",
+		"version": "changeset version",
+		"release": "changeset publish",
+		"format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json,css,html}\""
+	},
+	"devDependencies": {
+		"@changesets/changelog-github": "^0.5.2",
+		"@changesets/cli": "^2.29.8"
+	},
+	"dependencies": {
+		"prettier": "^3.7.4"
+	}
 }
