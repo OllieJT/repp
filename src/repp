@@ -336,6 +336,10 @@ Commands:
   config
     show        Show resolved settings
 
+Dependencies:
+  Required: yq (mikefarah/yq)
+  Optional: gum (interactive selection)
+
 Run 'repp <command> --help' for details.
 EOF
 }
