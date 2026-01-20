@@ -30,6 +30,7 @@ source "$SCRIPT_DIR/lib/mutate.sh"
 # Source command handlers
 source "$SCRIPT_DIR/commands/plan.sh"
 source "$SCRIPT_DIR/commands/config.sh"
+source "$SCRIPT_DIR/commands/init.sh"
 
 repp::check_deps || exit $REPP_EXIT_ERROR
 
@@ -211,6 +212,17 @@ Examples:
 EOF
 }
 
+repp::help::init() {
+    cat <<EOF
+Usage: repp init
+
+Initialize plans directory and settings file.
+
+Examples:
+  repp init
+EOF
+}
+
 # Helper to check if args contain --help
 repp::has_help_flag() {
     for arg in "$@"; do
@@ -287,6 +299,10 @@ repp::main() {
                     ;;
             esac
             ;;
+        init)
+            if repp::has_help_flag "$action" "$@"; then repp::help::init; return $REPP_EXIT_SUCCESS
+            else repp::cmd::init; return $?; fi
+            ;;
         --help|-h|"")
             repp::usage
             return $REPP_EXIT_SUCCESS
@@ -301,9 +317,11 @@ repp::main() {
 
 repp::usage() {
     cat <<EOF
-Usage: repp <resource> <action> [args]
+Usage: repp <command> [args]
 
-Resources:
+Commands:
+  init          Initialize plans directory and settings
+
   plan
     list        List plans
     get         Get plan details
@@ -318,7 +336,7 @@ Resources:
   config
     show        Show resolved settings
 
-Run 'repp <resource> --help' for details.
+Run 'repp <command> --help' for details.
 EOF
 }
 
