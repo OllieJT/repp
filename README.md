@@ -10,7 +10,7 @@ CLI for documenting workloads in agent-friendly codebases.
 
 **Built for agent workflows.** AI agents work best with pre-considered plans. Repp supports patterns like the Ralph Wiggum Loop—agents that plan, execute, and iterate autonomously.
 
-**Context-efficient by design.** Planning and task selection shouldn't consume the context needed for actual work. The CLI returns only metadata, and is queryable by attributes like status and priority. This enables agents to spend context on the work, not the tooling.
+**Context-efficient by design.** Task selection shouldn't consume the context needed for actual work. The CLI returns only metadata, and is queryable by attributes like status and priority. This enables agents to spend context on the work, not the tooling.
 
 ## What It Is Not
 
@@ -36,24 +36,24 @@ repp plan list
 
 ## Solution
 
-Enable agent task selection and context management:
+Enable agent plan selection and context management:
 
 - **Markdown with frontmatter** for metadata and specs in one file
-- **Metadata-only queries** minimize context spent on task discovery
+- **Metadata-only queries** minimize context spent on plan discovery
 - **Flexible filtering** by status, priority, and blocking dependencies
 - **Shell-native** querying with standard tools
 
-Agents can discover available tasks, read detailed specs when needed, and update status—all version-controlled with the code.
+Agents can discover available plans, read detailed specs when needed, and update status—all version-controlled with the code.
 
 ## Design Principles
 
 | Principle          | Implementation                                            |
 | ------------------ | --------------------------------------------------------- |
 | Version controlled | All progress lives in git—branch, merge, review like code |
-| Context-efficient  | Metadata queries minimize overhead for task selection     |
-| Queryable          | Filter plans and tasks by status, priority, dependencies  |
+| Context-efficient  | Metadata queries minimize overhead for plan selection     |
+| Queryable          | Filter plans by status, priority, dependencies            |
 | Shell-native       | Data readable with `grep`, `find`, `cat`—no lock-in       |
-| Self-contained     | Each task is one file: metadata + specification           |
+| Self-contained     | Each plan is one file: metadata + specification           |
 
 ## Data Model
 
@@ -73,49 +73,42 @@ Optional markdown body for plan details.
 
 **Frontmatter fields:**
 
-| Field       | Type   | Values                         |
-| ----------- | ------ | ------------------------------ |
-| priority    | string | Any value (e.g., P1, P2, P3)   |
-| description | string | What this plan is for          |
+| Field       | Type   | Values                                                |
+| ----------- | ------ | ----------------------------------------------------- |
+| priority    | string | Any value (e.g., P1, P2, P3)                          |
+| description | string | What this plan is for                                 |
 | status      | string | backlog \| discovery \| in_progress \| review \| done |
 
 **Lifecycle:** `backlog → discovery → in_progress → review → done`
-
-### TASK.md
-
-Markdown file with YAML frontmatter. Body contains task specification.
-
-```markdown
----
-priority: P2
-description: Task description here
-status: backlog
-blocked_by:
-  - other-plan/other-task
----
-
-Detailed task specification goes here.
 
 ## Comments
 
 - First comment
 - Second comment
-```
+
+````
 
 **Frontmatter fields:**
 
 | Field       | Type     | Values                                      |
 | ----------- | -------- | ------------------------------------------- |
 | priority    | string   | Any value (e.g., P1, P2, P3)                |
-| description | string   | What this task accomplishes                 |
+| description | string   | What this plan accomplishes                 |
 | status      | string   | backlog \| in_progress \| review \| done    |
-| blocked_by  | string[] | Optional: Task IDs that must complete first |
+| blocked_by  | string[] | Optional: Plan filenames that must complete first |
 
 **Lifecycle:** `backlog → in_progress → review ⇄ in_progress | done`
 
 **Comments:** Appended to `## Comments` section in markdown body via `repp plan note`.
 
 ## Commands
+
+### Init
+
+```sh
+repp init
+  # Create plans/ directory and settings.json if they don't exist
+````
 
 ### Plan Commands
 
@@ -171,16 +164,37 @@ Plans live in `{git-root}/plans/`. Optionally add `plans/settings.json`:
 
 | Field        | Type       | Default                      | Description               |
 | ------------ | ---------- | ---------------------------- | ------------------------- |
-| `priorities` | `string[]` | `["P0","P1","P2","P3","P4"]` | Priority values for tasks |
+| `priorities` | `string[]` | `["P0","P1","P2","P3","P4"]` | Priority values for plans |
 
 ## Agent Tooling
 
 Convenience tools for AI agents:
 
-- **Skills** for plan/task workflows via Claude Code
+- **Skills** for plan workflows via Claude Code
 - **Sub-agent configuration** for autonomous Ralph loop execution
 
 ## Dependencies
 
-- [yq](https://github.com/mikefarah/yq) (Mike Farah version)
-- [gum](https://github.com/charmbracelet/gum) (interactive selection, styled output)
+### Required
+
+**[yq](https://github.com/mikefarah/yq)** — YAML processor for parsing frontmatter. Must be Mike Farah's version (not Python yq).
+
+```sh
+# macOS
+brew install yq
+
+# Linux
+sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && sudo chmod +x /usr/local/bin/yq
+```
+
+### Optional
+
+**[gum](https://github.com/charmbracelet/gum)** — Interactive selection UI. Required only for commands with interactive prompts (e.g., `repp plan get` without args).
+
+```sh
+# macOS
+brew install gum
+
+# Linux
+sudo mkdir -p /etc/apt/keyrings && curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg && echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list && sudo apt update && sudo apt install gum
+```
