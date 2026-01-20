@@ -1,67 +1,54 @@
 #!/usr/bin/env bash
-# Config file loading
+# Config and settings
 
-_REPP_CONFIG_FILE=""
-REPP_ROOT=""
-REPP_PRIORITIES="${REPP_PRIORITIES:-P0,P1,P2,P3,P4}"
-
-repp::load_config() {
-    local config_paths=(
-        "$PWD/.repprc"
-        "$(git rev-parse --show-toplevel 2>/dev/null)/.repprc"
-    )
-
-    # Add script's git root if available
-    if [[ -n "${_REPP_SCRIPT_DIR:-}" ]]; then
-        local script_git_root
-        script_git_root="$(cd "$_REPP_SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null)"
-        [[ -n "$script_git_root" ]] && config_paths+=("$script_git_root/.repprc")
-    fi
-
-    config_paths+=("$HOME/.config/repp/config")
-
-    for path in "${config_paths[@]}"; do
-        [[ -z "$path" || "$path" == "/.repprc" ]] && continue
-        if [[ -f "$path" ]]; then
-            if ! source "$path" 2>/dev/null; then
-                repp::log::error "failed to source config '$path'"
-                return $REPP_EXIT_ERROR
-            fi
-            _REPP_CONFIG_FILE="$path"
-            return $REPP_EXIT_SUCCESS
-        fi
-    done
-
-    repp::log::error "no config file found. Create .repprc with REPP_ROOT=\"path/to/plans\""
-    return $REPP_EXIT_ERROR
-}
+_REPP_SETTINGS_LOADED=false
+REPP_PRIORITIES=()
 
 repp::get_root() {
-    [[ -z "$_REPP_CONFIG_FILE" ]] && { repp::load_config || return $REPP_EXIT_ERROR; }
+    local git_root
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+        repp::log::error "not in a git repository"
+        return $REPP_EXIT_ERROR
+    }
 
-    local root="${REPP_ROOT:-plans}"
-    local resolved
-
-    if [[ "$root" == /* ]]; then
-        resolved="$root"
-    else
-        local config_dir
-        config_dir="$(cd "$(dirname "$_REPP_CONFIG_FILE")" && pwd)"
-        resolved="$config_dir/$root"
-    fi
-
-    if command -v realpath &>/dev/null; then
-        local realpath_result
-        if realpath_result="$(realpath -m "$resolved" 2>/dev/null)"; then
-            resolved="$realpath_result"
-        fi
-    fi
-
-    if [[ ! -d "$resolved" ]]; then
-        repp::log::error "REPP_ROOT directory not found: $resolved"
+    local root="$git_root/projects"
+    if [[ ! -d "$root" ]]; then
+        repp::log::error "projects directory not found: $root"
         return $REPP_EXIT_ERROR
     fi
 
-    echo "$resolved"
+    echo "$root"
     return $REPP_EXIT_SUCCESS
+}
+
+repp::load_settings() {
+    [[ "$_REPP_SETTINGS_LOADED" == true ]] && return $REPP_EXIT_SUCCESS
+
+    local git_root settings_file
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+        repp::log::error "not in a git repository"
+        return $REPP_EXIT_ERROR
+    }
+
+    settings_file="$git_root/projects/settings.json"
+
+    if [[ -f "$settings_file" ]]; then
+        local priorities_json
+        priorities_json="$(yq -oy '.priorities // ["P0","P1","P2","P3","P4"]' "$settings_file" 2>/dev/null)"
+        if [[ $? -eq 0 && -n "$priorities_json" ]]; then
+            mapfile -t REPP_PRIORITIES < <(echo "$priorities_json" | yq -oy '.[]' 2>/dev/null)
+        else
+            REPP_PRIORITIES=("P0" "P1" "P2" "P3" "P4")
+        fi
+    else
+        REPP_PRIORITIES=("P0" "P1" "P2" "P3" "P4")
+    fi
+
+    _REPP_SETTINGS_LOADED=true
+    return $REPP_EXIT_SUCCESS
+}
+
+repp::get_priorities() {
+    repp::load_settings || return $REPP_EXIT_ERROR
+    printf '%s\n' "${REPP_PRIORITIES[@]}"
 }

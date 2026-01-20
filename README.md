@@ -212,15 +212,18 @@ repp task note [task-id] "comment"
 
 ## Configuration
 
-Create `.repprc` in project root:
+Plans live in `{git-root}/projects/`. Optionally add `projects/settings.json`:
 
-```bash
-# Path to your plans folder, relative to this file.
-REPP_ROOT="path/to/plans"
-
-# Optional: Custom priority values for interactive selection (default: P0,P1,P2,P3,P4)
-REPP_PRIORITIES="critical,high,medium,low"
+```json
+{
+  "$schema": "https://unpkg.com/repp@latest/src/schema/settings.schema.json",
+  "priorities": ["P0", "P1", "P2", "P3", "P4"]
+}
 ```
+
+| Field        | Type       | Default                       | Description                |
+| ------------ | ---------- | ----------------------------- | -------------------------- |
+| `priorities` | `string[]` | `["P0","P1","P2","P3","P4"]`  | Priority values for tasks  |
 
 ## Dependencies
 
