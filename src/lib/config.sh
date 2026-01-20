@@ -11,9 +11,9 @@ repp::get_root() {
         return $REPP_EXIT_ERROR
     }
 
-    local root="$git_root/projects"
+    local root="$git_root/plans"
     if [[ ! -d "$root" ]]; then
-        repp::log::error "projects directory not found: $root"
+        repp::log::error "plans directory not found: $root"
         return $REPP_EXIT_ERROR
     fi
 
@@ -30,7 +30,7 @@ repp::load_settings() {
         return $REPP_EXIT_ERROR
     }
 
-    settings_file="$git_root/projects/settings.json"
+    settings_file="$git_root/plans/settings.json"
 
     if [[ -f "$settings_file" ]]; then
         local priorities_json

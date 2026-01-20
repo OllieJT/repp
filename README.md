@@ -192,7 +192,7 @@ repp task note [task-id] "comment"
 
 ## Configuration
 
-Plans live in `{git-root}/projects/`. Optionally add `projects/settings.json`:
+Plans live in `{git-root}/plans/`. Optionally add `plans/settings.json`:
 
 ```json
 {
