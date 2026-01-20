@@ -46,6 +46,7 @@ Actions:
   complete    Transition plan to done
   note        Add comment to plan
   is-blocked  Check if plan is blocked
+  validate    Find invalid plans
 
 Flags:
   --status=X         Filter by status (backlog|discovery|in_progress|review|done)
@@ -176,6 +177,17 @@ Examples:
 EOF
 }
 
+repp::help::plan::validate() {
+    cat <<EOF
+Usage: repp plan validate
+
+Find plans with missing or invalid frontmatter.
+
+Examples:
+  repp plan validate
+EOF
+}
+
 # Helper to check if args contain --help
 repp::has_help_flag() {
     for arg in "$@"; do
@@ -227,6 +239,10 @@ repp::main() {
                     if repp::has_help_flag "$@"; then repp::help::plan::is_blocked; return $REPP_EXIT_SUCCESS
                     else repp::cmd::plan::is_blocked "$@"; return $?; fi
                     ;;
+                validate)
+                    if repp::has_help_flag "$@"; then repp::help::plan::validate; return $REPP_EXIT_SUCCESS
+                    else repp::cmd::plan::validate "$@"; return $?; fi
+                    ;;
                 *)
                     echo "Unknown action: $action" >&2
                     repp::help::plan
@@ -260,6 +276,7 @@ Resources:
     complete    Transition plan to done
     note        Add comment to plan
     is-blocked  Check if plan is blocked
+    validate    Find invalid plans
 
 Run 'repp plan --help' for details.
 EOF

@@ -59,6 +59,28 @@ repp::md::get_frontmatter() {
     yq --front-matter=extract '.' "$file"
 }
 
+repp::md::has_frontmatter() {
+    local file="$1"
+    [[ -f "$file" ]] || return 1
+    head -1 "$file" | grep -q '^---$'
+}
+
+repp::md::validate_frontmatter() {
+    # Returns: 0=valid, 1=no frontmatter, 2=invalid yaml, 3=missing required
+    local file="$1"
+    [[ -f "$file" ]] || return 1
+
+    head -1 "$file" | grep -q '^---$' || return 1
+    yq --front-matter=extract '.' "$file" >/dev/null 2>&1 || return 2
+
+    local status description
+    status=$(yq --front-matter=extract '.status // ""' "$file" 2>/dev/null)
+    description=$(yq --front-matter=extract '.description // ""' "$file" 2>/dev/null)
+    [[ -z "$status" || -z "$description" ]] && return 3
+
+    return 0
+}
+
 repp::md::add_comment() {
     local file="$1"
     local comment="$2"

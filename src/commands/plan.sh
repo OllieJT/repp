@@ -115,3 +115,8 @@ repp::cmd::plan::is_blocked() {
     repp::is_plan_blocked "$plan_id"
     return $?
 }
+
+repp::cmd::plan::validate() {
+    repp::validate_plans "$@"
+    return $?
+}

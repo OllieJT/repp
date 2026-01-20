@@ -40,7 +40,7 @@ Everything versions together. Branch the code, branch the work tracking.
 
 ## Data Model
 
-### PLAN.md
+### Plans (`plans/<id>.md`)
 
 Markdown file with YAML frontmatter. Optional body for plan details.
 

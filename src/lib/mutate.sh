@@ -16,7 +16,7 @@ repp::resolve_plan_file() {
     local root
     root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local file="$root/$id/PLAN.md"
+    local file="$root/$id.md"
 
     if [[ ! -f "$file" ]]; then
         repp::log::error "plan '$id' not found"

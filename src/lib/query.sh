@@ -16,7 +16,7 @@ repp::get_plan() {
     local root
     root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local file="$root/$id/PLAN.md"
+    local file="$root/$id.md"
 
     if [[ ! -f "$file" ]]; then
         repp::log::info "plan '$id' not found"
@@ -54,11 +54,12 @@ repp::list_plans() {
 
     local found=0
 
-    for f in "$root"/*/PLAN.md; do
+    for f in "$root"/*.md; do
         [[ -f "$f" ]] || continue
+        repp::md::validate_frontmatter "$f" || continue
 
         local id
-        id=$(basename "$(dirname "$f")")
+        id=$(basename "$f" .md)
         local status
         status=$(repp::md::get_value "$f" '.status')
         local priority
@@ -100,11 +101,12 @@ repp::scan_plans() {
 
     local found=0
 
-    for f in "$root"/*/PLAN.md; do
+    for f in "$root"/*.md; do
         [[ -f "$f" ]] || continue
+        repp::md::validate_frontmatter "$f" || continue
 
         local id
-        id=$(basename "$(dirname "$f")")
+        id=$(basename "$f" .md)
         local status
         status=$(repp::md::get_value "$f" '.status')
         local priority
@@ -118,6 +120,34 @@ repp::scan_plans() {
     done
 
     [[ $found -eq 0 ]] && repp::log::info "no plans found"
+    return $REPP_EXIT_SUCCESS
+}
+
+repp::validate_plans() {
+    local root
+    root="$(repp::get_root)" || return $REPP_EXIT_ERROR
+
+    local invalid_count=0
+
+    for f in "$root"/*.md; do
+        [[ -f "$f" ]] || continue
+
+        local id
+        id=$(basename "$f" .md)
+
+        local rc=0
+        repp::md::validate_frontmatter "$f" || rc=$?
+        case $rc in
+            0) continue ;;
+            1) repp::log::warn "$id: no frontmatter" ;;
+            2) repp::log::warn "$id: invalid YAML" ;;
+            3) repp::log::warn "$id: missing status or description" ;;
+        esac
+        ((invalid_count++)) || true
+    done
+
+    [[ $invalid_count -eq 0 ]] && repp::log::info "all plans valid"
+    [[ $invalid_count -gt 0 ]] && return $REPP_EXIT_ERROR
     return $REPP_EXIT_SUCCESS
 }
 
@@ -135,7 +165,7 @@ repp::is_plan_blocked() {
     local root
     root="$(repp::get_root)" || return $REPP_EXIT_ERROR
 
-    local file="$root/$id/PLAN.md"
+    local file="$root/$id.md"
 
     if [[ ! -f "$file" ]]; then
         repp::log::error "plan '$id' not found"
@@ -149,7 +179,7 @@ repp::is_plan_blocked() {
     [[ -z "$blockers" ]] && return $REPP_EXIT_ERROR
 
     while IFS= read -r blocker_id; do
-        local blocker_file="$root/$blocker_id/PLAN.md"
+        local blocker_file="$root/$blocker_id.md"
 
         if [[ ! -f "$blocker_file" ]]; then
             repp::log::warn "blocker '$blocker_id' not found"
