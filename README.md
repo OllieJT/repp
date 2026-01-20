@@ -2,41 +2,42 @@
 
 # Repo Plans `repp`
 
-File-based plan and task tracking that lives in your repository.
+CLI for documenting workloads in agent-friendly codebases.
 
 ## What It Is
 
-**Task documentation that lives with code.** Plans and specs version-controlled alongside the code they describe. Branch the code, branch the context.
+**The right abstraction for AI-assisted planning.** Rather than inventing new systems, repp extends markdown plan documents with frontmatter and provides a CLI for graceful automation.
 
-**Structured for AI agents.** Agents read requirements, update status, and commit changes—all without external APIs. Detailed plans reduce context window bloat and maintain output quality.
+**Built for agent workflows.** AI agents work best with pre-considered plans. Repp supports patterns like the Ralph Wiggum Loop—agents that plan, execute, and iterate autonomously.
 
-**Code as source of truth.** Your repo reflects what the app _is_ and what needs to be _done_. Task state branches, merges, and diffs with the code.
+**Context-efficient by design.** Planning and task selection shouldn't consume the context needed for actual work. The CLI returns only metadata, and is queryable by attributes like status and priority. This enables agents to spend context on the work, not the tooling.
 
 ## What It Is Not
 
-**Not a replacement for team alignment tools.** Keep using whatever works for coordination and reporting.
+**Not a replacement for team coordination.** Keep using whatever works for human alignment and reporting.
 
 **Not a product.** Primitives your team already knows (YAML, Markdown, Bash). Opinionated enough to be useful, flexible enough to extend.
 
 ## Solution
 
-Track plans and tasks as files in the repository:
+Enable agent task selection and context management:
 
 - **Markdown with frontmatter** for metadata and specs in one file
-- **Git branches** map 1:1 with plans
+- **Metadata-only queries** minimize context spent on task discovery
+- **Flexible filtering** by status, priority, and blocking dependencies
 - **Shell-native** querying with standard tools
 
-Everything versions together. Branch the code, branch the work tracking.
+Agents can discover available tasks, read detailed specs when needed, and update status—all version-controlled with the code.
 
 ## Design Principles
 
-| Principle          | Implementation                                            |
-| ------------------ | --------------------------------------------------------- |
-| Version controlled | All progress lives in git—branch, merge, review like code |
-| Conflict-friendly  | Frontmatter + markdown resolves merge conflicts cleanly   |
-| Shell-native       | Data readable with `grep`, `find`, `cat`—no lock-in       |
-| Self-contained     | Each task is one file: metadata + specification           |
-| Zero dependencies  | Works anywhere git works                                  |
+| Principle           | Implementation                                            |
+| ------------------- | --------------------------------------------------------- |
+| Version controlled  | All progress lives in git—branch, merge, review like code |
+| Context-efficient   | Metadata queries minimize overhead for task selection     |
+| Queryable           | Filter plans and tasks by status, priority, dependencies  |
+| Shell-native        | Data readable with `grep`, `find`, `cat`—no lock-in       |
+| Self-contained      | Each task is one file: metadata + specification           |
 
 ## Data Model
 
@@ -204,6 +205,13 @@ Plans live in `{git-root}/plans/`. Optionally add `plans/settings.json`:
 | Field        | Type       | Default                       | Description                |
 | ------------ | ---------- | ----------------------------- | -------------------------- |
 | `priorities` | `string[]` | `["P0","P1","P2","P3","P4"]`  | Priority values for tasks  |
+
+## Agent Tooling
+
+Convenience tools for AI agents:
+
+- **Skills** for plan/task workflows via Claude Code
+- **Sub-agent configuration** for autonomous Ralph loop execution
 
 ## Dependencies
 
